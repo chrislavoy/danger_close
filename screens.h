@@ -29,6 +29,8 @@
 //----------------------------------------------------------------------------------
 // Types and Structures Definition
 //----------------------------------------------------------------------------------
+#define MAX_SHELLS 20
+
 typedef enum GameScreen { LOGO = 0, TITLE, OPTIONS, GAMEPLAY, ENDING } GameScreen;
 
 typedef struct Player {
@@ -39,7 +41,24 @@ typedef struct Player {
     Color color;
 } Player;
 
+typedef struct Shell {
+    Vector2 origin;
+    Vector2 position;
+    Rectangle rectangle;
+    float rotation;
+    Color color;
+    bool active;
+    Vector2 velocity;
+    float range;
+//    float travelDistnace;
+} Shell;
 
+typedef struct Ammo {
+    int count;
+    int capacity;
+    int shellIterator;
+    Shell shells[MAX_SHELLS];
+} Ammo;
 
 //----------------------------------------------------------------------------------
 // Global Variables Declaration (shared by several modules)
@@ -88,6 +107,12 @@ void UpdateGameplayScreen(void);
 void DrawGameplayScreen(void);
 void UnloadGameplayScreen(void);
 int FinishGameplayScreen(void);
+void InitPlayer();
+void InitAmmo();
+void UpdateAmmo(float);
+void DrawAmmo();
+void Shoot();
+void Explode(int);
 
 //----------------------------------------------------------------------------------
 // Ending Screen Functions Declaration
