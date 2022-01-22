@@ -35,6 +35,10 @@ static int finishScreen = 0;
 
 const float TURN_RATE = 100.0f;
 
+Camera2D worldCamera;
+Camera2D mapCamera;
+RenderTexture worldRenderTexture;
+RenderTexture mapRenderTexture;
 Player player;
 Ammo ammo;
 
@@ -50,6 +54,20 @@ void InitGameplayScreen(void)
     finishScreen = 0;
     InitAmmo();
     InitPlayer();
+
+    worldCamera.target = player.position;
+    worldCamera.offset = Vector2Zero();
+    worldCamera.rotation = 0;
+    worldCamera.zoom = 1;
+
+    worldRenderTexture = LoadRenderTexture(GetScreenWidth()-300, GetScreenHeight());
+
+    mapCamera.target = player.position;
+    mapCamera.offset = Vector2Zero();
+    mapCamera.rotation = 0;
+    mapCamera.zoom = 1;
+
+    mapRenderTexture = LoadRenderTexture(GetScreenWidth()-300, GetScreenHeight());
 }
 
 // Gameplay Screen Update logic
@@ -59,11 +77,11 @@ void UpdateGameplayScreen(void)
     float dt = GetFrameTime();
 
     // Press enter or tap to change to ENDING screen
-    if (IsKeyPressed(KEY_ENTER) || IsGestureDetected(GESTURE_TAP))
-    {
-        finishScreen = 1;
-        PlaySound(fxCoin);
-    }
+//    if (IsKeyPressed(KEY_ENTER) || IsGestureDetected(GESTURE_TAP))
+//    {
+//        finishScreen = 1;
+//        PlaySound(fxCoin);
+//    }
 
     if (IsKeyDown(KEY_LEFT))
     {
@@ -103,7 +121,7 @@ void DrawGameplayScreen(void)
     DrawRectanglePro(player.rectangle, player.origin, player.rotation, player.color);
 //    DrawTextEx(font, "GAMEPLAY SCREEN", (Vector2){ 20, 10 }, font.baseSize*3, 4, MAROON);
 //    DrawText("PRESS ENTER or TAP to JUMP to ENDING SCREEN", 130, 220, 20, MAROON);
-    DrawText(TextFormat("Player rotation: %f", player.rotation), 20, 10, 20, DARKGRAY);
+//    DrawText(TextFormat("Player rotation: %f", player.rotation), 20, 10, 20, DARKGRAY);
 }
 
 // Gameplay Screen Unload logic
@@ -120,8 +138,8 @@ int FinishGameplayScreen(void)
 
 void Shoot()
 {
-    TraceLog(LOG_INFO, "Shoot");
-    PlaySound(fxCoin);
+//    TraceLog(LOG_INFO, "Shoot");
+    PlaySound(fxShoot);
 //    Shell shell = ammo.shells[ammo.shellIterator];
     ammo.shells[ammo.shellIterator].rotation = player.rotation;
     ammo.shells[ammo.shellIterator].position = player.position;
@@ -165,8 +183,8 @@ void InitAmmo()
 
 void Explode(int shellIndex)
 {
-    TraceLog(LOG_INFO, "Explode");
-    PlaySound(fxCoin);
+//    TraceLog(LOG_INFO, "Explode");
+    PlaySound(fxImpact);
     ammo.shells[shellIndex].active = false;
 }
 

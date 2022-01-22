@@ -23,10 +23,12 @@ GameScreen currentScreen = 0;
 Font font = { 0 };
 Music music = { 0 };
 Sound fxCoin = { 0 };
+Sound fxShoot = { 0 };
+Sound fxImpact = { 0 };
 
 // Global Variables Definition
 int screenWidth = 900;
-int screenHeight = 506;
+int screenHeight = 500;
 
 // Required variables to manage screen transitions (fade-in, fade-out)
 static float transAlpha = 0.0f;
@@ -55,12 +57,23 @@ int main()
     font = LoadFont("assets/mecha.png");
     music = LoadMusicStream("assets/ambient.ogg");
     fxCoin = LoadSound("assets/coin.wav");
+    fxShoot = LoadSound("assets/shoot.wav");
+    fxImpact = LoadSound("assets/impact.wav");
 
     SetMusicVolume(music, 1.0f);
     PlayMusicStream(music);
 
-    currentScreen = LOGO;
-    InitLogoScreen();
+    currentScreen = GAMEPLAY;
+//    InitLogoScreen();
+
+    switch (currentScreen)
+    {
+        case LOGO: InitLogoScreen(); break;
+        case TITLE: InitTitleScreen(); break;
+        case GAMEPLAY: InitGameplayScreen(); break;
+        case ENDING: InitEndingScreen(); break;
+        default: break;
+    }
 
 #if defined(PLATFORM_WEB)
     emscripten_set_main_loop(UpdateDrawFrame, 60, 1);
@@ -87,6 +100,8 @@ int main()
     UnloadFont(font);
     UnloadMusicStream(music);
     UnloadSound(fxCoin);
+    UnloadSound(fxShoot);
+    UnloadSound(fxImpact);
 
     // De-Initialization
     CloseAudioDevice();
@@ -268,7 +283,7 @@ static void UpdateDrawFrame(void)
     // Draw full screen rectangle in front of everything
     if (onTransition) DrawTransition();
 
-    //DrawFPS(10, 10);
+    DrawFPS(10, 10);
 
     EndDrawing();
     //----------------------------------------------------------------------------------
