@@ -24,8 +24,9 @@
 **********************************************************************************************/
 
 #include "raylib.h"
-#include "screens.h"
 #include "raymath.h"
+#include "extras/raygui.h"
+#include "screens.h"
 
 //----------------------------------------------------------------------------------
 // Module Variables Definition (local)
@@ -34,6 +35,8 @@ static int framesCounter = 0;
 static int finishScreen = 0;
 
 const float TURN_RATE = 100.0f;
+
+float fireRange = 1000;
 
 Camera2D worldCamera;
 Camera2D mapCamera;
@@ -119,9 +122,23 @@ void DrawGameplayScreen(void)
 //    DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), PURPLE);
     DrawAmmo();
     DrawRectanglePro(player.rectangle, player.origin, player.rotation, player.color);
+    DrawRectangle(600, 0, 300, GetScreenHeight(), LIGHTGRAY);
 //    DrawTextEx(font, "GAMEPLAY SCREEN", (Vector2){ 20, 10 }, font.baseSize*3, 4, MAROON);
 //    DrawText("PRESS ENTER or TAP to JUMP to ENDING SCREEN", 130, 220, 20, MAROON);
 //    DrawText(TextFormat("Player rotation: %f", player.rotation), 20, 10, 20, DARKGRAY);
+    player.rotation = GuiSlider((Rectangle){670, 250, 175, 25}, "Rotation", TextFormat("%.2f", player.rotation), player.rotation, 0, 360);
+    fireRange = GuiSlider((Rectangle){670, 300, 175, 25}, "Distance", TextFormat("%.2f", fireRange), fireRange, 0, 1000);
+    if (GuiButton((Rectangle){670, 350, 175, 25}, "Fire"))
+    {
+        Shoot();
+    }
+
+    if (GuiButton((Rectangle){670, 400, 175, 25}, "Reload"))
+    {
+        Reload();
+    }
+
+    GuiLabel((Rectangle){670, 450, 175, 25}, TextFormat("%d / %d", ammo.count, ammo.capacity));
 }
 
 // Gameplay Screen Unload logic
@@ -138,18 +155,21 @@ int FinishGameplayScreen(void)
 
 void Shoot()
 {
-//    TraceLog(LOG_INFO, "Shoot");
-    PlaySound(fxShoot);
-//    Shell shell = ammo.shells[ammo.shellIterator];
-    ammo.shells[ammo.shellIterator].rotation = player.rotation;
-    ammo.shells[ammo.shellIterator].position = player.position;
-    ammo.shells[ammo.shellIterator].active = true;
-    ammo.shells[ammo.shellIterator].velocity = (Vector2){-sinf(ammo.shells[ammo.shellIterator].rotation * DEG2RAD), cosf(ammo.shells[ammo.shellIterator].rotation * DEG2RAD)};
-//    ammo.shells[ammo.shellIterator].travelDistnace = 0;
-    ammo.shellIterator++;
-    if (ammo.shellIterator >= ammo.count)
+    if (ammo.count > 0)
     {
-        ammo.shellIterator = 0;
+        PlaySound(fxShoot);
+        ammo.shells[ammo.shellIterator].rotation = player.rotation;
+        ammo.shells[ammo.shellIterator].position = player.position;
+        ammo.shells[ammo.shellIterator].active = true;
+        ammo.shells[ammo.shellIterator].velocity = (Vector2){-sinf(ammo.shells[ammo.shellIterator].rotation * DEG2RAD), cosf(ammo.shells[ammo.shellIterator].rotation * DEG2RAD)};
+        ammo.shells[ammo.shellIterator].range = fireRange;
+        ammo.shellIterator++;
+//        if (ammo.shellIterator >= ammo.capacity)
+//        {
+//            ammo.shellIterator = 0;
+//        }
+
+        ammo.count--;
     }
 }
 
@@ -167,7 +187,7 @@ void InitAmmo()
     ammo.capacity = MAX_SHELLS;
     ammo.count = MAX_SHELLS;
 
-    for (int i = 0; i < ammo.count; ++i)
+    for (int i = 0; i < ammo.capacity; ++i)
     {
         ammo.shells[i].origin = (Vector2){0, 0};
         ammo.shells[i].position = (Vector2){0, 0};
@@ -183,16 +203,14 @@ void InitAmmo()
 
 void Explode(int shellIndex)
 {
-//    TraceLog(LOG_INFO, "Explode");
-    PlaySound(fxImpact);
+    PlaySound(fxDistantImpact);
     ammo.shells[shellIndex].active = false;
 }
 
 void UpdateAmmo(float dt)
 {
-    for (int i = 0; i < ammo.count; ++i)
+    for (int i = 0; i < ammo.capacity; ++i)
     {
-//        Shell shell = ammo.shells[i];
         if (ammo.shells[i].active)
         {
             if (Vector2Distance(player.position, ammo.shells[i].position) > ammo.shells[i].range)
@@ -210,7 +228,7 @@ void UpdateAmmo(float dt)
 
 void DrawAmmo()
 {
-    for (int i = 0; i < ammo.count; ++i)
+    for (int i = 0; i < ammo.capacity; ++i)
     {
         Shell shell = ammo.shells[i];
         if (shell.active)
@@ -218,4 +236,10 @@ void DrawAmmo()
             DrawRectanglePro(shell.rectangle, shell.origin, shell.rotation, shell.color);
         }
     }
+}
+
+void Reload()
+{
+    ammo.count = ammo.capacity;
+    ammo.shellIterator = 0;
 }

@@ -50,7 +50,6 @@ typedef struct Shell {
     bool active;
     Vector2 velocity;
     float range;
-//    float travelDistnace;
 } Shell;
 
 typedef struct Ammo {
@@ -68,7 +67,9 @@ extern Font font;
 extern Music music;
 extern Sound fxCoin;
 extern Sound fxShoot;
-extern Sound fxImpact;
+//extern Sound fxImpact;
+extern Sound fxDistantImpact;
+//extern Sound fxPreImpact;
 
 #ifdef __cplusplus
 extern "C" {            // Prevents name mangling of functions
@@ -115,6 +116,7 @@ void UpdateAmmo(float);
 void DrawAmmo();
 void Shoot();
 void Explode(int);
+void Reload();
 
 //----------------------------------------------------------------------------------
 // Ending Screen Functions Declaration

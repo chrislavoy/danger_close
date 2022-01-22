@@ -13,6 +13,8 @@
 ********************************************************************************************/
 
 #include "raylib.h"
+#define RAYGUI_IMPLEMENTATION
+#include "extras/raygui.h"
 #include "screens.h"
 
 #if defined(PLATFORM_WEB)
@@ -24,7 +26,9 @@ Font font = { 0 };
 Music music = { 0 };
 Sound fxCoin = { 0 };
 Sound fxShoot = { 0 };
-Sound fxImpact = { 0 };
+//Sound fxImpact = { 0 };
+Sound fxDistantImpact = { 0 };
+//Sound fxPreImpact = { 0 };
 
 // Global Variables Definition
 int screenWidth = 900;
@@ -58,10 +62,12 @@ int main()
     music = LoadMusicStream("assets/ambient.ogg");
     fxCoin = LoadSound("assets/coin.wav");
     fxShoot = LoadSound("assets/shoot.wav");
-    fxImpact = LoadSound("assets/impact.wav");
+//    fxImpact = LoadSound("assets/impact.wav");
+    fxDistantImpact = LoadSound("assets/distantImpact.wav");
+//    fxPreImpact = LoadSound("assets/preImpact.wav");
 
-    SetMusicVolume(music, 1.0f);
-    PlayMusicStream(music);
+//    SetMusicVolume(music, 1.0f);
+//    PlayMusicStream(music);
 
     currentScreen = GAMEPLAY;
 //    InitLogoScreen();
@@ -101,7 +107,9 @@ int main()
     UnloadMusicStream(music);
     UnloadSound(fxCoin);
     UnloadSound(fxShoot);
-    UnloadSound(fxImpact);
+//    UnloadSound(fxImpact);
+    UnloadSound(fxDistantImpact);
+//    UnloadSound(fxPreImpact);
 
     // De-Initialization
     CloseAudioDevice();
