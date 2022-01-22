@@ -26,12 +26,20 @@
 #ifndef SCREENS_H
 #define SCREENS_H
 
-#include "raylib.h"
-
 //----------------------------------------------------------------------------------
 // Types and Structures Definition
 //----------------------------------------------------------------------------------
 typedef enum GameScreen { LOGO = 0, TITLE, OPTIONS, GAMEPLAY, ENDING } GameScreen;
+
+typedef struct Player {
+    Vector2 origin;
+    Vector2 position;
+    Rectangle rectangle;
+    float rotation;
+    Color color;
+} Player;
+
+
 
 //----------------------------------------------------------------------------------
 // Global Variables Declaration (shared by several modules)

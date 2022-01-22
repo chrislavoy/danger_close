@@ -25,12 +25,17 @@
 
 #include "raylib.h"
 #include "screens.h"
+#include "raymath.h"
 
 //----------------------------------------------------------------------------------
 // Module Variables Definition (local)
 //----------------------------------------------------------------------------------
 static int framesCounter = 0;
 static int finishScreen = 0;
+
+const float TURN_RATE = 100.0f;
+
+Player player;
 
 //----------------------------------------------------------------------------------
 // Gameplay Screen Functions Definition
@@ -42,6 +47,11 @@ void InitGameplayScreen(void)
     // TODO: Initialize GAMEPLAY screen variables here!
     framesCounter = 0;
     finishScreen = 0;
+    player.origin = (Vector2){2.5f, 0};
+    player.position = (Vector2){ GetScreenWidth()/2, GetScreenHeight()/2 };
+    player.rectangle = (Rectangle){player.position.x, player.position.y, 5, 25};
+    player.rotation = 180;
+    player.color = RED;
 }
 
 // Gameplay Screen Update logic
@@ -55,15 +65,36 @@ void UpdateGameplayScreen(void)
         finishScreen = 1;
         PlaySound(fxCoin);
     }
+
+    if (IsKeyDown(KEY_LEFT))
+    {
+        player.rotation -= TURN_RATE * GetFrameTime();
+    }
+
+    if (IsKeyDown(KEY_RIGHT))
+    {
+        player.rotation += TURN_RATE * GetFrameTime();
+    }
+
+    if (player.rotation > 360)
+    {
+        player.rotation -= 360;
+    }
+    else if (player.rotation < 0)
+    {
+        player.rotation += 360;
+    }
 }
 
 // Gameplay Screen Draw logic
 void DrawGameplayScreen(void)
 {
     // TODO: Draw GAMEPLAY screen here!
-    DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), PURPLE);
-    DrawTextEx(font, "GAMEPLAY SCREEN", (Vector2){ 20, 10 }, font.baseSize*3, 4, MAROON);
-    DrawText("PRESS ENTER or TAP to JUMP to ENDING SCREEN", 130, 220, 20, MAROON);
+//    DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), PURPLE);
+    DrawRectanglePro(player.rectangle, player.origin, player.rotation, player.color);
+//    DrawTextEx(font, "GAMEPLAY SCREEN", (Vector2){ 20, 10 }, font.baseSize*3, 4, MAROON);
+//    DrawText("PRESS ENTER or TAP to JUMP to ENDING SCREEN", 130, 220, 20, MAROON);
+    DrawText(TextFormat("Player rotation: %f", player.rotation), 20, 10, 20, DARKGRAY);
 }
 
 // Gameplay Screen Unload logic
