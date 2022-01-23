@@ -28,6 +28,9 @@
 #include "extras/raygui.h"
 #include "screens.h"
 
+// IDK why I need to redefine this macro here but I do
+//#define NULL (void*)0
+
 //----------------------------------------------------------------------------------
 // Module Variables Definition (local)
 //----------------------------------------------------------------------------------
@@ -40,8 +43,9 @@ float fireRange = 1000;
 
 Camera2D worldCamera;
 Camera2D mapCamera;
-RenderTexture worldRenderTexture;
-RenderTexture mapRenderTexture;
+//RenderTexture mainRenderTexture;
+RenderTexture sideRenderTexture;
+//Shader shader;
 Player player;
 Ammo ammo;
 
@@ -63,14 +67,18 @@ void InitGameplayScreen(void)
     worldCamera.rotation = 0;
     worldCamera.zoom = 1;
 
-    worldRenderTexture = LoadRenderTexture(GetScreenWidth()-300, GetScreenHeight());
+//    mainRenderTexture = LoadRenderTexture(600, GetScreenHeight());
 
     mapCamera.target = player.position;
     mapCamera.offset = Vector2Zero();
     mapCamera.rotation = 0;
     mapCamera.zoom = 1;
 
-    mapRenderTexture = LoadRenderTexture(GetScreenWidth()-300, GetScreenHeight());
+    sideRenderTexture = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
+//    sideRenderTexture = LoadRenderTexture(600, 600);
+    SetTextureFilter(sideRenderTexture.texture, TEXTURE_FILTER_ANISOTROPIC_16X);
+
+//    shader = LoadShader(NULL, NULL);
 }
 
 // Gameplay Screen Update logic
@@ -80,11 +88,11 @@ void UpdateGameplayScreen(void)
     float dt = GetFrameTime();
 
     // Press enter or tap to change to ENDING screen
-//    if (IsKeyPressed(KEY_ENTER) || IsGestureDetected(GESTURE_TAP))
-//    {
-//        finishScreen = 1;
-//        PlaySound(fxCoin);
-//    }
+    if (IsKeyPressed(KEY_BACKSPACE))
+    {
+        finishScreen = 1;
+        PlaySound(fxCoin);
+    }
 
     if (IsKeyDown(KEY_LEFT))
     {
@@ -110,22 +118,47 @@ void UpdateGameplayScreen(void)
         player.rotation += 360;
     }
 
-//    player.rectangle = (Rectangle){player.position.x, player.position.y, 5, 25};
-
     UpdateAmmo(dt);
 }
 
 // Gameplay Screen Draw logic
 void DrawGameplayScreen(void)
 {
+    BeginTextureMode(sideRenderTexture);
+        ClearBackground(RAYWHITE);
+        BeginMode2D(mapCamera);
+            DrawRectangle(player.position.x, player.position.y, 25, 25, BLUE);
+            DrawCircleLines(player.position.x, player.position.y, fireRange, RED);
+        EndMode2D();
+//        DrawCircleV(Vector2One(), 5, GREEN);
+    EndTextureMode();
+
+//    BeginTextureMode(sideRenderTexture);
+//        ClearBackground(RAYWHITE);
+        DrawRectangle(player.position.x, player.position.y, 25, 25, BLUE);
+        DrawCircleLines(player.position.x, player.position.y, fireRange, RED);
+//    EndTextureMode();
+
     // TODO: Draw GAMEPLAY screen here!
-//    DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), PURPLE);
-    DrawAmmo();
-    DrawRectanglePro(player.rectangle, player.origin, player.rotation, player.color);
+//    BeginShaderMode(shader);
+//        DrawTextureRec(mainRenderTexture.texture, (Rectangle){0, 0, 500, 500}, Vector2Zero(), WHITE);
+//        DrawTextureRec(sideRenderTexture.texture, (Rectangle){602, 2, 300, 500}, Vector2Zero(), WHITE);
+//    EndShaderMode();
+
+    BeginDrawing();
+    ClearBackground(RAYWHITE);
     DrawRectangle(600, 0, 300, GetScreenHeight(), LIGHTGRAY);
-//    DrawTextEx(font, "GAMEPLAY SCREEN", (Vector2){ 20, 10 }, font.baseSize*3, 4, MAROON);
-//    DrawText("PRESS ENTER or TAP to JUMP to ENDING SCREEN", 130, 220, 20, MAROON);
-//    DrawText(TextFormat("Player rotation: %f", player.rotation), 20, 10, 20, DARKGRAY);
+    DrawTexturePro(
+            sideRenderTexture.texture,
+            (Rectangle){0, 0, sideRenderTexture.texture.width,sideRenderTexture.texture.height},
+            (Rectangle){603, 2, 294, 165},
+//            (Vector2){GetScreenWidth(), GetScreenHeight()},
+            Vector2Zero(),
+            0,
+            WHITE);
+    DrawAmmo();
+    DrawPlayer();
+
     player.rotation = GuiSlider((Rectangle){670, 250, 175, 25}, "Rotation", TextFormat("%.2f", player.rotation), player.rotation, 0, 360);
     fireRange = GuiSlider((Rectangle){670, 300, 175, 25}, "Distance", TextFormat("%.2f", fireRange), fireRange, 0, 1000);
     if (GuiButton((Rectangle){670, 350, 175, 25}, "Fire"))
@@ -139,12 +172,15 @@ void DrawGameplayScreen(void)
     }
 
     GuiLabel((Rectangle){670, 450, 175, 25}, TextFormat("%d / %d", ammo.count, ammo.capacity));
+    EndDrawing();
 }
 
 // Gameplay Screen Unload logic
 void UnloadGameplayScreen(void)
 {
     // TODO: Unload GAMEPLAY screen variables here!
+//    UnloadRenderTexture(mainRenderTexture);
+    UnloadRenderTexture(sideRenderTexture);
 }
 
 // Gameplay Screen should finish?
@@ -158,16 +194,13 @@ void Shoot()
     if (ammo.count > 0)
     {
         PlaySound(fxShoot);
+
         ammo.shells[ammo.shellIterator].rotation = player.rotation;
         ammo.shells[ammo.shellIterator].position = player.position;
         ammo.shells[ammo.shellIterator].active = true;
         ammo.shells[ammo.shellIterator].velocity = (Vector2){-sinf(ammo.shells[ammo.shellIterator].rotation * DEG2RAD), cosf(ammo.shells[ammo.shellIterator].rotation * DEG2RAD)};
         ammo.shells[ammo.shellIterator].range = fireRange;
         ammo.shellIterator++;
-//        if (ammo.shellIterator >= ammo.capacity)
-//        {
-//            ammo.shellIterator = 0;
-//        }
 
         ammo.count--;
     }
@@ -176,7 +209,7 @@ void Shoot()
 void InitPlayer()
 {
     player.origin = (Vector2){2.5f, 0};
-    player.position = (Vector2){ GetScreenWidth()/2, GetScreenHeight()/2 };
+    player.position = (Vector2){ 300, GetScreenHeight()/2 };
     player.rectangle = (Rectangle){player.position.x, player.position.y, 5, 25};
     player.rotation = 180;
     player.color = RED;
@@ -196,8 +229,7 @@ void InitAmmo()
         ammo.shells[i].color = BLACK;
         ammo.shells[i].active = false;
         ammo.shells[i].velocity = (Vector2){0, 0};
-        ammo.shells[i].range = 1000;
-//        ammo.shells[i].travelDistnace = 0;
+        ammo.shells[i].range = 0;
     }
 }
 
@@ -224,6 +256,12 @@ void UpdateAmmo(float dt)
             }
         }
     }
+}
+
+void DrawPlayer()
+{
+    DrawRectangle(player.position.x - 10, 240, 20, 20, BLACK);
+    DrawRectanglePro(player.rectangle, player.origin, player.rotation, player.color);
 }
 
 void DrawAmmo()

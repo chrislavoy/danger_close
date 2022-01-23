@@ -274,9 +274,12 @@ static void UpdateDrawFrame(void)
 
     // Draw
     //----------------------------------------------------------------------------------
-    BeginDrawing();
+    if (currentScreen != GAMEPLAY)
+    {
+        BeginDrawing();
 
-    ClearBackground(RAYWHITE);
+        ClearBackground(RAYWHITE);
+    }
 
     switch(currentScreen)
     {
@@ -293,6 +296,9 @@ static void UpdateDrawFrame(void)
 
     DrawFPS(10, 10);
 
-    EndDrawing();
+    if (currentScreen != GAMEPLAY)
+    {
+        EndDrawing();
+    }
     //----------------------------------------------------------------------------------
 }

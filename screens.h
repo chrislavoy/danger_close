@@ -113,6 +113,7 @@ int FinishGameplayScreen(void);
 void InitPlayer();
 void InitAmmo();
 void UpdateAmmo(float);
+void DrawPlayer();
 void DrawAmmo();
 void Shoot();
 void Explode(int);
