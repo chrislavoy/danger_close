@@ -39,9 +39,10 @@ static int finishScreen = 0;
 
 const float TURN_RATE = 100.0f;
 
-float fireRange = 1000;
+const float MAX_FIRE_RANGE = 1000;
+float fireRange = MAX_FIRE_RANGE;
 
-Camera2D worldCamera;
+//Camera2D worldCamera;
 Camera2D mapCamera;
 //RenderTexture mainRenderTexture;
 RenderTexture sideRenderTexture;
@@ -62,19 +63,19 @@ void InitGameplayScreen(void)
     InitAmmo();
     InitPlayer();
 
-    worldCamera.target = player.position;
-    worldCamera.offset = Vector2Zero();
-    worldCamera.rotation = 0;
-    worldCamera.zoom = 1;
+//    worldCamera.target = player.position;
+//    worldCamera.offset = Vector2Zero();
+//    worldCamera.rotation = 0;
+//    worldCamera.zoom = 1;
 
 //    mainRenderTexture = LoadRenderTexture(600, GetScreenHeight());
 
-    mapCamera.target = player.position;
+    mapCamera.target = (Vector2) {player.position.x - 1000, player.position.y - 1000};
     mapCamera.offset = Vector2Zero();
     mapCamera.rotation = 0;
-    mapCamera.zoom = 1;
+    mapCamera.zoom = 0.3f;
 
-    sideRenderTexture = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
+    sideRenderTexture = LoadRenderTexture(600, 600);
 //    sideRenderTexture = LoadRenderTexture(600, 600);
     SetTextureFilter(sideRenderTexture.texture, TEXTURE_FILTER_ANISOTROPIC_16X);
 
@@ -104,6 +105,16 @@ void UpdateGameplayScreen(void)
         player.rotation += TURN_RATE * dt;
     }
 
+    if (IsKeyDown(KEY_UP))
+    {
+        fireRange += 10 * dt;
+    }
+
+    if (IsKeyDown(KEY_DOWN))
+    {
+        fireRange -= 10 * dt;
+    }
+
     if (IsKeyPressed(KEY_SPACE))
     {
         Shoot();
@@ -118,6 +129,15 @@ void UpdateGameplayScreen(void)
         player.rotation += 360;
     }
 
+    if (fireRange > MAX_FIRE_RANGE)
+    {
+        fireRange = MAX_FIRE_RANGE;
+    }
+    else if (fireRange < 0)
+    {
+        fireRange = 0;
+    }
+
     UpdateAmmo(dt);
 }
 
@@ -127,40 +147,41 @@ void DrawGameplayScreen(void)
     BeginTextureMode(sideRenderTexture);
         ClearBackground(RAYWHITE);
         BeginMode2D(mapCamera);
-            DrawRectangle(player.position.x, player.position.y, 25, 25, BLUE);
+            DrawRectangle(player.position.x - 25, player.position.y - 25, 50, 50, BLUE);
             DrawCircleLines(player.position.x, player.position.y, fireRange, RED);
+            DrawCircle(player.position.x, player.position.y, fireRange, ColorAlpha(RED, 0.25));
         EndMode2D();
 //        DrawCircleV(Vector2One(), 5, GREEN);
     EndTextureMode();
 
 //    BeginTextureMode(sideRenderTexture);
 //        ClearBackground(RAYWHITE);
-        DrawRectangle(player.position.x, player.position.y, 25, 25, BLUE);
+//        DrawRectangle(player.position.x, player.position.y, 25, 25, BLUE);
+        DrawRectangle(player.position.x - 25, player.position.y - 25, 50, 50, BLUE);
         DrawCircleLines(player.position.x, player.position.y, fireRange, RED);
 //    EndTextureMode();
 
     // TODO: Draw GAMEPLAY screen here!
-//    BeginShaderMode(shader);
-//        DrawTextureRec(mainRenderTexture.texture, (Rectangle){0, 0, 500, 500}, Vector2Zero(), WHITE);
-//        DrawTextureRec(sideRenderTexture.texture, (Rectangle){602, 2, 300, 500}, Vector2Zero(), WHITE);
-//    EndShaderMode();
 
     BeginDrawing();
     ClearBackground(RAYWHITE);
     DrawRectangle(600, 0, 300, GetScreenHeight(), LIGHTGRAY);
     DrawTexturePro(
-            sideRenderTexture.texture,
-            (Rectangle){0, 0, sideRenderTexture.texture.width,sideRenderTexture.texture.height},
-            (Rectangle){603, 2, 294, 165},
-//            (Vector2){GetScreenWidth(), GetScreenHeight()},
-            Vector2Zero(),
-            0,
-            WHITE);
+        sideRenderTexture.texture,
+        (Rectangle){0, 0, sideRenderTexture.texture.width,sideRenderTexture.texture.height},
+//        (Rectangle){603, 2, 294, 165},
+        (Rectangle){635, 2, 230, 230},
+        (Vector2){0, 0},
+        0,
+        WHITE);
+//    DrawTexturePro(sideRenderTexture.texture, (Rectangle){ 0.0f, 0.0f, (float)sideRenderTexture.texture.width, (float)-sideRenderTexture.texture.height },
+//                   (Rectangle){ (GetScreenWidth() - ((float)gameScreenWidth*scale))*0.5f, (GetScreenHeight() - ((float)gameScreenHeight*scale))*0.5f,
+//                                (float)gameScreenWidth*scale, (float)gameScreenHeight*scale }, (Vector2){ 0, 0 }, 0.0f, WHITE);
     DrawAmmo();
     DrawPlayer();
 
     player.rotation = GuiSlider((Rectangle){670, 250, 175, 25}, "Rotation", TextFormat("%.2f", player.rotation), player.rotation, 0, 360);
-    fireRange = GuiSlider((Rectangle){670, 300, 175, 25}, "Distance", TextFormat("%.2f", fireRange), fireRange, 0, 1000);
+    fireRange = GuiSlider((Rectangle){670, 300, 175, 25}, "Distance", TextFormat("%.2f", fireRange), fireRange, 0, MAX_FIRE_RANGE);
     if (GuiButton((Rectangle){670, 350, 175, 25}, "Fire"))
     {
         Shoot();
