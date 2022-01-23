@@ -107,12 +107,12 @@ void UpdateGameplayScreen(void)
 
     if (IsKeyDown(KEY_UP))
     {
-        fireRange += 10 * dt;
+        fireRange += 100 * dt;
     }
 
     if (IsKeyDown(KEY_DOWN))
     {
-        fireRange -= 10 * dt;
+        fireRange -= 100 * dt;
     }
 
     if (IsKeyPressed(KEY_SPACE))
@@ -144,36 +144,40 @@ void UpdateGameplayScreen(void)
 // Gameplay Screen Draw logic
 void DrawGameplayScreen(void)
 {
-    BeginTextureMode(sideRenderTexture);
-        ClearBackground(RAYWHITE);
-        BeginMode2D(mapCamera);
-            DrawRectangle(player.position.x - 25, player.position.y - 25, 50, 50, BLUE);
-            DrawCircleLines(player.position.x, player.position.y, fireRange, RED);
-            DrawCircle(player.position.x, player.position.y, fireRange, ColorAlpha(RED, 0.25));
-        EndMode2D();
-//        DrawCircleV(Vector2One(), 5, GREEN);
-    EndTextureMode();
-
 //    BeginTextureMode(sideRenderTexture);
 //        ClearBackground(RAYWHITE);
-//        DrawRectangle(player.position.x, player.position.y, 25, 25, BLUE);
-        DrawRectangle(player.position.x - 25, player.position.y - 25, 50, 50, BLUE);
-        DrawCircleLines(player.position.x, player.position.y, fireRange, RED);
+//        BeginMode2D(mapCamera);
+//            DrawRectangle(player.position.x - 25, player.position.y - 25, 50, 50, BLUE);
+//            DrawCircleLines(player.position.x, player.position.y, fireRange, RED);
+//            DrawCircle(player.position.x, player.position.y, fireRange, ColorAlpha(RED, 0.25));
+//            for (int i = 0; i < ammo.capacity; ++i)
+//            {
+//                Shell shell = ammo.shells[i];
+//                if (shell.active)
+//                {
+//                    DrawRectangle(shell.position.x, shell.position.y, 50, 50, BLACK);
+//                }
+//            }
+//        EndMode2D();
 //    EndTextureMode();
+
+// DEBUG DRAWS
+//        DrawRectangle(player.position.x - 25, player.position.y - 25, 50, 50, BLUE);
+//        DrawCircleLines(player.position.x, player.position.y, fireRange, RED);
 
     // TODO: Draw GAMEPLAY screen here!
 
     BeginDrawing();
     ClearBackground(RAYWHITE);
+    DrawCircleV(Vector2Zero(), 10, GREEN);
     DrawRectangle(600, 0, 300, GetScreenHeight(), LIGHTGRAY);
-    DrawTexturePro(
-        sideRenderTexture.texture,
-        (Rectangle){0, 0, sideRenderTexture.texture.width,sideRenderTexture.texture.height},
-//        (Rectangle){603, 2, 294, 165},
-        (Rectangle){635, 2, 230, 230},
-        (Vector2){0, 0},
-        0,
-        WHITE);
+//    DrawTexturePro(
+//        sideRenderTexture.texture,
+//        (Rectangle){0, 0, sideRenderTexture.texture.width,sideRenderTexture.texture.height},
+//        (Rectangle){635, 2, 230, 230},
+//        (Vector2){0, 0},
+//        0,
+//        WHITE);
 //    DrawTexturePro(sideRenderTexture.texture, (Rectangle){ 0.0f, 0.0f, (float)sideRenderTexture.texture.width, (float)-sideRenderTexture.texture.height },
 //                   (Rectangle){ (GetScreenWidth() - ((float)gameScreenWidth*scale))*0.5f, (GetScreenHeight() - ((float)gameScreenHeight*scale))*0.5f,
 //                                (float)gameScreenWidth*scale, (float)gameScreenHeight*scale }, (Vector2){ 0, 0 }, 0.0f, WHITE);
