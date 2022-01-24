@@ -32,6 +32,6 @@ extern Ammo ammo;
 
 void InitAmmo(void);
 void UpdateAmmo(float, Vector2);
-void DrawAmmo(Texture2D*);
+void DrawAmmo();
 
 #endif //DANGER_CLOSE_AMMO_H

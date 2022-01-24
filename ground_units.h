@@ -29,6 +29,6 @@ extern Enemies enemies;
 
 void InitEnemies(void);
 void UpdateEnemies();
-void DrawEnemies(Texture2D*);
+void DrawEnemies();
 
 #endif //DANGER_CLOSE_GROUND_UNITS_H

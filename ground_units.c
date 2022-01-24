@@ -5,6 +5,9 @@
 #include "ground_units.h"
 #include "raymath.h"
 
+// Also declared in screens.h, implemented in screen_gameplay.c
+void DrawSprite(int offsetX, int offsetY, Vector2 position, Vector2 origin, float rotation);
+
 void InitEnemies(void) {
     enemies.capacity = MAX_ENEMIES;
 
@@ -41,13 +44,13 @@ void UpdateEnemies()
     }
 }
 
-void DrawEnemies(Texture2D* spriteSheet)
+void DrawEnemies()
 {
     for (int i = 0; i < MAX_ENEMIES; ++i)
     {
         if (enemies.units[i].active)
         {
-            DrawTexturePro(*spriteSheet, (Rectangle){16*64, 10*64, 64, 64}, enemies.units[i].rectangle, enemies.units[i].origin, enemies.units[i].rotation - 180, enemies.units[i].color);
+            DrawSprite(16, 10, enemies.units[i].position, enemies.units[i].origin, enemies.units[i].rotation);
         }
     }
 }

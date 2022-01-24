@@ -5,7 +5,9 @@
 #include "ammo.h"
 #include "raymath.h"
 
-void Explode(int); // Declared in screens.h, implemented in screen_gameplay.c
+// Also declared in screens.h, implemented in screen_gameplay.c
+void Explode(int);
+void DrawSprite(int offsetX, int offsetY, Vector2 position, Vector2 origin, float rotation);
 
 void InitAmmo(void)
 {
@@ -45,14 +47,14 @@ void UpdateAmmo(float dt, Vector2 playerPosition)
     }
 }
 
-void DrawAmmo(Texture2D* spriteSheet)
+void DrawAmmo()
 {
     for (int i = 0; i < ammo.capacity; ++i)
     {
         Shell shell = ammo.shells[i];
         if (shell.active)
         {
-            DrawTexturePro(*spriteSheet, (Rectangle){19*64, 11*64, 64, 64}, shell.rectangle, shell.origin, shell.rotation - 180, shell.color);
+            DrawSprite(19, 11, shell.position, shell.origin, shell.rotation);
         }
     }
 }

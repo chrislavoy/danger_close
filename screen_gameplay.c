@@ -59,6 +59,7 @@ bool showMessage = false;
 //----------------------------------------------------------------------------------
 // Gameplay Screen Functions Definition
 //----------------------------------------------------------------------------------
+void DrawGui();
 
 // Gameplay Screen Initialization logic
 void InitGameplayScreen(void)
@@ -150,32 +151,11 @@ void DrawGameplayScreen(void)
     EndTextureMode();
 
     ClearBackground(RAYWHITE);
-    DrawAmmo(&spriteSheet);
-    DrawPlayer(&spriteSheet);
-    DrawEnemies(&spriteSheet);
-    DrawRectangle(600, 0, 300, GetScreenHeight(), LIGHTGRAY);
-    DrawTexturePro(
-        sideRenderTexture.texture,
-        (Rectangle){0, 0, -sideRenderTexture.texture.width,sideRenderTexture.texture.height},
-        (Rectangle){750, 117, 230, 230},
-        (Vector2){115, 115},
-        180,
-        WHITE);
+    DrawAmmo();
+    DrawPlayer();
+    DrawEnemies();
 
-    // TODO: Change these GUI elements
-    player.rotation = GuiSlider((Rectangle){670, 250, 175, 25}, "Rotation", TextFormat("%.2f", player.rotation), player.rotation, 0, 360);
-    player.fireRange = GuiSlider((Rectangle){670, 300, 175, 25}, "Distance", TextFormat("%.2f", player.fireRange), player.fireRange, MIN_FIRE_RANGE, MAX_FIRE_RANGE);
-    if (GuiButton((Rectangle){670, 350, 175, 25}, "Fire"))
-    {
-        Shoot();
-    }
-
-    if (GuiButton((Rectangle){670, 400, 175, 25}, "Reload"))
-    {
-        Reload();
-    }
-
-    GuiLabel((Rectangle){670, 450, 175, 25}, TextFormat("%d / %d", ammo.count, ammo.capacity));
+    DrawGui();
 
     DrawMessage();
 }
@@ -260,4 +240,56 @@ void DrawMessage()
         DrawRectangleLinesEx((Rectangle){5, 305, 590, 190}, 3, BLACK);
         DrawText(feedbackMessage, 15, 315, 30, BLACK);
     }
+}
+
+void DrawGui()
+{
+    DrawRectangle(600, 0, 300, GetScreenHeight(), LIGHTGRAY);
+    DrawTexturePro(
+            sideRenderTexture.texture,
+            (Rectangle){0, 0, -sideRenderTexture.texture.width,sideRenderTexture.texture.height},
+            (Rectangle){750, 117, 230, 230},
+            (Vector2){115, 115},
+            180,
+            WHITE);
+
+    // TODO: Change these to GUI elements
+    if (GuiButton((Rectangle){670, 250, 25, 25}, "<<"))
+    {
+        ChangeRotation(-50);
+    }
+    if (GuiButton((Rectangle){695, 250, 25, 25}, "<"))
+    {
+        ChangeRotation(-10);
+    }
+    GuiLabelButton((Rectangle){725, 250, 25, 25}, TextFormat("%f.2", player.rotation));
+//    DrawText(TextFormat("%f.2", player.rotation), 720, 250, 25, BLACK);
+    if (GuiButton((Rectangle){760, 250, 25, 25}, ">"))
+    {
+        ChangeRotation(10);
+    }
+    if (GuiButton((Rectangle){785, 250, 25, 25}, ">>"))
+    {
+        ChangeRotation(50);
+    }
+//    player.targetRotation = GuiSlider((Rectangle){670, 250, 175, 25}, "Rotation", TextFormat("%.2f", player.targetRotation), player.targetRotation, 0, 360);
+    player.fireRange = GuiSlider((Rectangle){670, 300, 175, 25}, "Distance", TextFormat("%.2f", player.fireRange), player.fireRange, MIN_FIRE_RANGE, MAX_FIRE_RANGE);
+    if (GuiButton((Rectangle){670, 350, 175, 25}, "Fire"))
+    {
+        Shoot();
+    }
+
+    if (GuiButton((Rectangle){670, 400, 175, 25}, "Reload"))
+    {
+        Reload();
+    }
+
+    GuiLabel((Rectangle){670, 450, 175, 25}, TextFormat("%d / %d", ammo.count, ammo.capacity));
+}
+
+void DrawSprite(int offsetX, int offsetY, Vector2 position, Vector2 origin, float rotation)
+{
+    Rectangle source = (Rectangle){offsetX*64, offsetY*64, 64, 64};
+    Rectangle dest = (Rectangle){position.x, position.y, 64, 64};
+    DrawTexturePro(spriteSheet, source, dest, origin, rotation, WHITE);
 }

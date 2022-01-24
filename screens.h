@@ -111,6 +111,11 @@ void DrawEndingScreen(void);
 void UnloadEndingScreen(void);
 int FinishEndingScreen(void);
 
+//----------------------------------------------------------------------------------
+// Utility Functions
+//----------------------------------------------------------------------------------
+void DrawSprite(int, int, Vector2, Vector2, float);
+
 #ifdef __cplusplus
 }
 #endif

@@ -3,8 +3,18 @@
 //
 
 #include "player.h"
+#include "raymath.h"
 
-void Shoot(void); // Declared in screens.h, implemented in screen_gameplay.c
+// Also declared in screens.h, implemented in screen_gameplay.c
+void Shoot(void);
+void DrawSprite(int offsetX, int offsetY, Vector2 position, Vector2 origin, float rotation);
+
+// Private function declaration
+void UpdateRotation(float);
+float Wrap(float, float, float);
+
+// Private variable declaration
+bool CCW = false;
 
 void InitPlayer(void)
 {
@@ -12,6 +22,7 @@ void InitPlayer(void)
     player.position = (Vector2){ 300, GetScreenHeight()/2 };
     player.rectangle = (Rectangle){player.position.x, player.position.y, 64, 64};
     player.rotation = 180;
+    player.targetRotation = 180;
     player.color = WHITE;
     player.fireRange = MAX_FIRE_RANGE;
 }
@@ -20,52 +31,100 @@ void UpdatePlayer(float dt)
 {
     if (IsKeyDown(KEY_LEFT))
     {
-        player.rotation -= TURN_RATE * dt;
+        ChangeRotation(-TURN_RATE * dt);
     }
 
     if (IsKeyDown(KEY_RIGHT))
     {
-        player.rotation += TURN_RATE * dt;
+        ChangeRotation(TURN_RATE * dt);
     }
+
+    UpdateRotation(dt);
 
     if (IsKeyDown(KEY_UP))
     {
-        player.fireRange += 100 * dt;
+        ChangeRange(100 * dt);
     }
 
     if (IsKeyDown(KEY_DOWN))
     {
-        player.fireRange -= 100 * dt;
+        ChangeRange(-100 * dt);
     }
 
     if (IsKeyPressed(KEY_SPACE))
     {
         Shoot();
     }
+}
 
-    if (player.rotation > 360)
+void DrawPlayer()
+{
+    // Draw base
+    DrawSprite(20, 7, Vector2Add(player.position, (Vector2){0, 6}), player.origin, 0);
+    // Draw turret
+    DrawSprite(19, 10, player.position, player.origin, player.rotation - 180);
+
+    DrawText(TextFormat("Target rotation %f.0", player.targetRotation), 10, 40, 20, BLACK);
+}
+
+void ChangeRotation(float amount)
+{
+    player.targetRotation += amount;
+
+    player.targetRotation = Wrap(player.targetRotation, 0, 360);
+
+    float delta = player.rotation - player.targetRotation;
+    float absDelta = fabsf(delta);
+
+    if (delta < 0)
     {
-        player.rotation -= 360;
+        CCW = false;
     }
-    else if (player.rotation < 0)
+    else
     {
-        player.rotation += 360;
+        CCW = true;
     }
 
-    if (player.fireRange > MAX_FIRE_RANGE)
+    if (absDelta > 180)
     {
-        player.fireRange = MAX_FIRE_RANGE;
+        CCW = !CCW;
     }
-    else if (player.fireRange < MIN_FIRE_RANGE)
+
+    TraceLog(LOG_INFO, TextFormat("%f", player.rotation - player.targetRotation));
+}
+
+void ChangeRange(float amount)
+{
+    player.fireRange += amount;
+
+    player.fireRange = Clamp(player.fireRange, MIN_FIRE_RANGE, MAX_FIRE_RANGE);
+}
+
+void UpdateRotation(float dt)
+{
+    float delta = fabsf(player.rotation - player.targetRotation);
+//    float absDelta = fabsf(delta);
+
+    if (delta > 0.5f)
     {
-        player.fireRange = MIN_FIRE_RANGE;
+        if (CCW)
+            player.rotation -= TURN_RATE * dt;
+        else
+            player.rotation += TURN_RATE * dt;
+
+        player.rotation = Wrap(player.rotation, 0, 360);
+    }
+    else
+    {
+        player.rotation = player.targetRotation;
+        player.rotation = Wrap(player.rotation, 0, 360);
     }
 }
 
-void DrawPlayer(Texture2D* spriteSheet)
+float Wrap(float value, float min, float max)
 {
-    // Draw base
-    DrawTexturePro(*spriteSheet, (Rectangle){20*64, 7*64, 64, 64}, (Rectangle){player.position.x, player.position.y + 6, 64, 64}, player.origin, 0, player.color);
-    // Draw turret
-    DrawTexturePro(*spriteSheet, (Rectangle){19*64, 10*64, 64, 64}, player.rectangle, player.origin, player.rotation - 180, player.color);
+    float result = (value < min) ? value + max : value;
+    if (result > max) result -= max;
+    if (result == max) result = min;
+    return result;
 }
