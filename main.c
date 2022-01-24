@@ -26,9 +26,9 @@ Font font = { 0 };
 Music music = { 0 };
 Sound fxCoin = { 0 };
 Sound fxShoot = { 0 };
-//Sound fxImpact = { 0 };
+Sound fxImpact = { 0 };
 Sound fxDistantImpact = { 0 };
-//Sound fxPreImpact = { 0 };
+Texture2D spriteSheet;
 
 // Global Variables Definition
 int screenWidth = 900;
@@ -54,17 +54,21 @@ static void UpdateDrawFrame(void);     // Update and Draw one frame
 // Main Enry Point
 int main()
 {
+    SetConfigFlags(FLAG_VSYNC_HINT | FLAG_MSAA_4X_HINT);
+
     // Initialization
     InitWindow(screenWidth, screenHeight, "Danger Close");
     InitAudioDevice();
 
     font = LoadFont("assets/mecha.png");
-    music = LoadMusicStream("assets/ambient.ogg");
+    music = LoadMusicStream("assets/backgroundMusic.mp3");
     fxCoin = LoadSound("assets/coin.wav");
-    fxShoot = LoadSound("assets/shoot.wav");
-//    fxImpact = LoadSound("assets/impact.wav");
+    fxShoot = LoadSound("assets/gun.wav");
+    fxImpact = LoadSound("assets/impact.wav");
     fxDistantImpact = LoadSound("assets/distantImpact.wav");
-//    fxPreImpact = LoadSound("assets/preImpact.wav");
+
+    spriteSheet = LoadTexture("assets/towerDefense_tilesheet.png");
+    SetTextureFilter(spriteSheet, TEXTURE_FILTER_ANISOTROPIC_16X);
 
 //    SetMusicVolume(music, 1.0f);
 //    PlayMusicStream(music);
@@ -107,9 +111,8 @@ int main()
     UnloadMusicStream(music);
     UnloadSound(fxCoin);
     UnloadSound(fxShoot);
-//    UnloadSound(fxImpact);
+    UnloadSound(fxImpact);
     UnloadSound(fxDistantImpact);
-//    UnloadSound(fxPreImpact);
 
     // De-Initialization
     CloseAudioDevice();
@@ -274,12 +277,9 @@ static void UpdateDrawFrame(void)
 
     // Draw
     //----------------------------------------------------------------------------------
-    if (currentScreen != GAMEPLAY)
-    {
-        BeginDrawing();
+    BeginDrawing();
 
-        ClearBackground(RAYWHITE);
-    }
+    ClearBackground(RAYWHITE);
 
     switch(currentScreen)
     {
@@ -296,9 +296,6 @@ static void UpdateDrawFrame(void)
 
     DrawFPS(10, 10);
 
-    if (currentScreen != GAMEPLAY)
-    {
-        EndDrawing();
-    }
+    EndDrawing();
     //----------------------------------------------------------------------------------
 }

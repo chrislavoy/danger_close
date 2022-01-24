@@ -39,6 +39,7 @@ typedef struct Player {
     Rectangle rectangle;
     float rotation;
     Color color;
+    Vector2 spritesheetOffset;
 } Player;
 
 typedef struct Shell {
@@ -50,6 +51,8 @@ typedef struct Shell {
     bool active;
     Vector2 velocity;
     float range;
+    int blastRadius;
+    bool soundPlayed;
 } Shell;
 
 typedef struct Ammo {
@@ -59,6 +62,22 @@ typedef struct Ammo {
     Shell shells[MAX_SHELLS];
 } Ammo;
 
+typedef struct Enemy {
+    Vector2 origin;
+    Vector2 position;
+    Rectangle rectangle;
+    float rotation;
+    Color color;
+    bool active;
+    Vector2 targetPos;
+    float movementSpeed;
+} Enemy;
+
+typedef struct Animation {
+    float lifetime;
+
+} Animation;
+
 //----------------------------------------------------------------------------------
 // Global Variables Declaration (shared by several modules)
 //----------------------------------------------------------------------------------
@@ -67,9 +86,9 @@ extern Font font;
 extern Music music;
 extern Sound fxCoin;
 extern Sound fxShoot;
-//extern Sound fxImpact;
+extern Sound fxImpact;
 extern Sound fxDistantImpact;
-//extern Sound fxPreImpact;
+extern Texture2D spriteSheet;
 
 #ifdef __cplusplus
 extern "C" {            // Prevents name mangling of functions
@@ -112,12 +131,17 @@ void UnloadGameplayScreen(void);
 int FinishGameplayScreen(void);
 void InitPlayer();
 void InitAmmo();
+void InitEnemies();
 void UpdateAmmo(float);
+void UpdateEnemies();
 void DrawPlayer();
 void DrawAmmo();
+void DrawEnemies();
 void Shoot();
 void Explode(int);
 void Reload();
+void SetMessage(char*);
+void ShowMessage();
 
 //----------------------------------------------------------------------------------
 // Ending Screen Functions Declaration
