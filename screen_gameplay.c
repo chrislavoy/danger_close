@@ -27,9 +27,9 @@
 #include "raymath.h"
 #include "extras/raygui.h"
 #include "screens.h"
-
-// IDK why I need to redefine this macro here but I do
-//#define NULL (void*)0
+#include "player.h"
+#include "ammo.h"
+#include "ground_units.h"
 
 //----------------------------------------------------------------------------------
 // Module Variables Definition (local)
@@ -37,13 +37,8 @@
 static int framesCounter = 0;
 static int finishScreen = 0;
 
-const float TURN_RATE = 100.0f;
-const float MAX_FIRE_RANGE = 3000;
-const float MIN_FIRE_RANGE = 200;
-const int MAX_ENEMIES = 100;
 const float TIME_BETWEEN_FEEDBACK = 10.0f;
 
-float fireRange = MAX_FIRE_RANGE;
 float feedbackTimer = 0;
 float soundVolume = 1.0f;
 
@@ -54,8 +49,7 @@ RenderTexture2D sideRenderTexture;
 //Shader shader;
 Player player;
 Ammo ammo;
-
-Enemy enemies[100];
+Enemies enemies;
 
 Vector2 fireTargetPos = (Vector2){0, 0};
 
@@ -65,8 +59,6 @@ bool showMessage = false;
 //----------------------------------------------------------------------------------
 // Gameplay Screen Functions Definition
 //----------------------------------------------------------------------------------
-
-void ShowFeedback();
 
 // Gameplay Screen Initialization logic
 void InitGameplayScreen(void)
@@ -100,59 +92,15 @@ void UpdateGameplayScreen(void)
     // TODO: Update GAMEPLAY screen variables here!
     float dt = GetFrameTime();
 
-//    mapCamera.rotation += 25 * dt;
-
     // Press enter or tap to change to ENDING screen
     if (IsKeyPressed(KEY_BACKSPACE))
     {
         finishScreen = 1;
-        PlaySound(fxCoin);
     }
 
-    if (IsKeyDown(KEY_LEFT))
-    {
-        player.rotation -= TURN_RATE * dt;
-    }
+    UpdatePlayer(dt);
 
-    if (IsKeyDown(KEY_RIGHT))
-    {
-        player.rotation += TURN_RATE * dt;
-    }
-
-    if (IsKeyDown(KEY_UP))
-    {
-        fireRange += 100 * dt;
-    }
-
-    if (IsKeyDown(KEY_DOWN))
-    {
-        fireRange -= 100 * dt;
-    }
-
-    if (IsKeyPressed(KEY_SPACE))
-    {
-        Shoot();
-    }
-
-    if (player.rotation > 360)
-    {
-        player.rotation -= 360;
-    }
-    else if (player.rotation < 0)
-    {
-        player.rotation += 360;
-    }
-
-    if (fireRange > MAX_FIRE_RANGE)
-    {
-        fireRange = MAX_FIRE_RANGE;
-    }
-    else if (fireRange < MIN_FIRE_RANGE)
-    {
-        fireRange = MIN_FIRE_RANGE;
-    }
-
-    UpdateAmmo(dt);
+    UpdateAmmo(dt, player.position);
     UpdateEnemies();
 
     if (feedbackTimer > 0)
@@ -163,6 +111,7 @@ void UpdateGameplayScreen(void)
         {
             feedbackTimer = 0;
             feedbackMessage = "";
+            showMessage = false;
         }
     }
 }
@@ -170,17 +119,17 @@ void UpdateGameplayScreen(void)
 // Gameplay Screen Draw logic
 void DrawGameplayScreen(void)
 {
-// DEBUG DRAWS
-//        DrawCircleLines(player.position.x, player.position.y, fireRange, RED);
-
     // TODO: Draw GAMEPLAY screen here!
 
     BeginTextureMode(sideRenderTexture);
         ClearBackground(RAYWHITE);
         BeginMode2D(mapCamera);
+        // Begin drawing "radar" view
+        // Draw player
         DrawRectangle(player.position.x - 25, player.position.y - 25, 50, 50, BLUE);
-//        DrawCircleLines(player.position.x, player.position.y, fireRange, RED);
-        DrawCircle(player.position.x, player.position.y, fireRange, ColorAlpha(RED, 0.25));
+        // Draw range
+        DrawCircle(player.position.x, player.position.y, player.fireRange, ColorAlpha(RED, 0.25));
+        // Draw shells
         for (int i = 0; i < ammo.capacity; ++i)
         {
             Shell shell = ammo.shells[i];
@@ -189,20 +138,21 @@ void DrawGameplayScreen(void)
                 DrawRectangle(shell.position.x, shell.position.y, 50, 50, BLACK);
             }
         }
-        for (int i = 0; i < 100; ++i)
+        // Draw enemies
+        for (int i = 0; i < enemies.capacity; ++i)
         {
-            if (enemies[i].active)
+            if (enemies.units[i].active)
             {
-                DrawRectangle(enemies[i].position.x, enemies[i].position.y, 50, 50, RED);
+                DrawRectangle(enemies.units[i].position.x, enemies.units[i].position.y, 50, 50, RED);
             }
         }
         EndMode2D();
     EndTextureMode();
 
     ClearBackground(RAYWHITE);
-    DrawAmmo();
-    DrawPlayer();
-    DrawEnemies();
+    DrawAmmo(&spriteSheet);
+    DrawPlayer(&spriteSheet);
+    DrawEnemies(&spriteSheet);
     DrawRectangle(600, 0, 300, GetScreenHeight(), LIGHTGRAY);
     DrawTexturePro(
         sideRenderTexture.texture,
@@ -214,8 +164,7 @@ void DrawGameplayScreen(void)
 
     // TODO: Change these GUI elements
     player.rotation = GuiSlider((Rectangle){670, 250, 175, 25}, "Rotation", TextFormat("%.2f", player.rotation), player.rotation, 0, 360);
-    fireRange = GuiSlider((Rectangle){670, 300, 175, 25}, "Distance", TextFormat("%.2f", fireRange), fireRange, MIN_FIRE_RANGE, MAX_FIRE_RANGE);
-//    soundVolume = GuiSlider((Rectangle){670, 325, 175, 25}, "Sound Volume", TextFormat("%.2f", soundVolume), soundVolume, 0, 1.0f);
+    player.fireRange = GuiSlider((Rectangle){670, 300, 175, 25}, "Distance", TextFormat("%.2f", player.fireRange), player.fireRange, MIN_FIRE_RANGE, MAX_FIRE_RANGE);
     if (GuiButton((Rectangle){670, 350, 175, 25}, "Fire"))
     {
         Shoot();
@@ -228,7 +177,7 @@ void DrawGameplayScreen(void)
 
     GuiLabel((Rectangle){670, 450, 175, 25}, TextFormat("%d / %d", ammo.count, ammo.capacity));
 
-    ShowMessage();
+    DrawMessage();
 }
 
 // Gameplay Screen Unload logic
@@ -245,53 +194,6 @@ int FinishGameplayScreen(void)
     return finishScreen;
 }
 
-void InitPlayer()
-{
-    player.origin = (Vector2){32, 38};
-    player.position = (Vector2){ 300, GetScreenHeight()/2 };
-    player.rectangle = (Rectangle){player.position.x, player.position.y, 64, 64};
-    player.rotation = 180;
-    player.color = WHITE;
-}
-
-void InitAmmo()
-{
-    ammo.capacity = MAX_SHELLS;
-    ammo.count = MAX_SHELLS;
-
-    for (int i = 0; i < ammo.capacity; ++i)
-    {
-        ammo.shells[i].origin = (Vector2){32, 32};
-        ammo.shells[i].position = (Vector2){0, 0};
-        ammo.shells[i].rectangle = (Rectangle){0, 0, 64, 64};
-        ammo.shells[i].rotation = 0;
-        ammo.shells[i].color = WHITE;
-        ammo.shells[i].active = false;
-        ammo.shells[i].velocity = (Vector2){0, 0};
-        ammo.shells[i].range = 0;
-        ammo.shells[i].blastRadius = 100;
-        ammo.shells[i].soundPlayed = false;
-    }
-}
-
-void InitEnemies() {
-    for (int i = 0; i < MAX_ENEMIES; ++i)
-    {
-        enemies[i].origin = (Vector2){32, 32};
-        enemies[i].position = Vector2Zero();
-        enemies[i].rectangle = (Rectangle) {0, 0, 64, 64};
-        enemies[i].rotation = 0;
-        enemies[i].color = WHITE;
-        enemies[i].movementSpeed = 1;
-        enemies[i].targetPos = Vector2Zero();
-        enemies[i].active = false;
-    }
-
-    enemies[0].position = (Vector2) {10, 10};
-    enemies[0].targetPos = (Vector2) {800, 400};
-    enemies[0].active = true;
-}
-
 void Shoot()
 {
     if (ammo.count > 0)
@@ -303,8 +205,7 @@ void Shoot()
         ammo.shells[ammo.shellIterator].position = player.position;
         ammo.shells[ammo.shellIterator].active = true;
         ammo.shells[ammo.shellIterator].velocity = (Vector2){-sinf(ammo.shells[ammo.shellIterator].rotation * DEG2RAD), cosf(ammo.shells[ammo.shellIterator].rotation * DEG2RAD)};
-        ammo.shells[ammo.shellIterator].range = fireRange;
-        ammo.shells[ammo.shellIterator].soundPlayed = false;
+        ammo.shells[ammo.shellIterator].range = player.fireRange;
         ammo.shellIterator++;
 
         ammo.count--;
@@ -313,104 +214,26 @@ void Shoot()
 
 void Explode(int shellIndex)
 {
-//    float distance = Vector2Distance(player.position, ammo.shells[shellIndex].position);
-//    TraceLog(LOG_INFO, TextFormat("Distance: %f.2", distance));
     float volume = 1 - ammo.shells[shellIndex].range / (MAX_FIRE_RANGE + 200);
     SetSoundVolume(fxImpact, volume);
-//    SetSoundPitch(fxImpact, 0.1);
     PlaySoundMulti(fxImpact);
-//    PlaySound(fxImpact);
     ammo.shells[shellIndex].active = false;
 
     int enemiesHit = 0;
 
-    for (int i = 0; i < MAX_ENEMIES; ++i)
+    for (int i = 0; i < enemies.capacity; ++i)
     {
-        if (enemies[i].active)
+        if (enemies.units[i].active)
         {
-            if (CheckCollisionPointCircle(ammo.shells[shellIndex].position, enemies[i].position, ammo.shells[shellIndex].blastRadius))
+            if (CheckCollisionPointCircle(ammo.shells[shellIndex].position, enemies.units[i].position, ammo.shells[shellIndex].blastRadius))
             {
-                enemies[i].active = false;
+                enemies.units[i].active = false;
                 enemiesHit++;
             }
         }
     }
 
     SetMessage("Good hits!");
-}
-
-void UpdateAmmo(float dt)
-{
-    for (int i = 0; i < ammo.capacity; ++i)
-    {
-        if (ammo.shells[i].active)
-        {
-            if (Vector2Distance(player.position, ammo.shells[i].position) > ammo.shells[i].range)
-            {
-                Explode(i);
-            }
-            else
-            {
-//                if (Vector2Distance(player.position, ammo.shells[i].position) > ammo.shells[i].range - 200 && !ammo.shells[i].soundPlayed)
-//                {
-//                    // Set pitch relative to camera distance to impact
-////                    SetSoundPitch(fxImpact, (2000 - Vector2Distance(player.position, ammo.shells[i].position)) / 2000);
-//                    PlaySound(fxImpact);
-//                    ammo.shells[i].soundPlayed = true;
-//                }
-                ammo.shells[i].position = Vector2Add(ammo.shells[i].position, Vector2Scale(ammo.shells[i].velocity, 400 * dt));
-                ammo.shells[i].rectangle = (Rectangle){ammo.shells[i].position.x, ammo.shells[i].position.y, 64, 64};
-            }
-        }
-    }
-}
-
-void UpdateEnemies()
-{
-    for (int i = 0; i < MAX_ENEMIES; ++i)
-    {
-        if (enemies[i].active)
-        {
-            if (Vector2Distance(enemies[i].position, enemies[i].targetPos) > 400)
-            {
-                enemies[i].position = Vector2MoveTowards(enemies[i].position, enemies[i].targetPos, enemies[i].movementSpeed);
-                enemies[i].rotation = Vector2Angle(enemies[i].position, enemies[i].targetPos);
-                enemies[i].rectangle = (Rectangle){enemies[i].position.x, enemies[i].position.y, 64, 64};
-            }
-        }
-    }
-}
-
-void DrawPlayer()
-{
-    // Draw base
-    DrawTexturePro(spriteSheet, (Rectangle){20*64, 7*64, 64, 64}, (Rectangle){player.position.x, player.position.y + 6, 64, 64}, player.origin, 0, player.color);
-    // Draw turret
-    DrawTexturePro(spriteSheet, (Rectangle){19*64, 10*64, 64, 64}, player.rectangle, player.origin, player.rotation - 180, player.color);
-}
-
-void DrawAmmo()
-{
-    for (int i = 0; i < ammo.capacity; ++i)
-    {
-        Shell shell = ammo.shells[i];
-        if (shell.active)
-        {
-            DrawTexturePro(spriteSheet, (Rectangle){19*64, 11*64, 64, 64}, shell.rectangle, shell.origin, shell.rotation - 180, shell.color);
-        }
-    }
-}
-
-void DrawEnemies()
-{
-    for (int i = 0; i < MAX_ENEMIES; ++i)
-    {
-        if (enemies[i].active)
-        {
-//            DrawRectanglePro(enemies[i].rectangle, Vector2Zero(), enemies[i].rotation, enemies[i].color);
-            DrawTexturePro(spriteSheet, (Rectangle){16*64, 10*64, 64, 64}, enemies[i].rectangle, enemies[i].origin, enemies[i].rotation - 180, enemies[i].color);
-        }
-    }
 }
 
 void Reload()
@@ -429,12 +252,9 @@ void SetMessage(char* message)
     }
 }
 
-void ShowMessage()
+void DrawMessage()
 {
-//    DrawRectangleRounded((Rectangle){0, 300, 600, 200}, 0.01f, 1, WHITE);
-//    DrawRectangleRoundedLines((Rectangle){0, 300, 600, 200}, 0.01f, 1, 5, BLACK);
-
-    if (feedbackTimer > 0)
+    if (showMessage)
     {
         DrawRectangleRec((Rectangle){5, 305, 590, 190}, WHITE);
         DrawRectangleLinesEx((Rectangle){5, 305, 590, 190}, 3, BLACK);

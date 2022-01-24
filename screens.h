@@ -29,49 +29,8 @@
 //----------------------------------------------------------------------------------
 // Types and Structures Definition
 //----------------------------------------------------------------------------------
-#define MAX_SHELLS 20
 
 typedef enum GameScreen { LOGO = 0, TITLE, OPTIONS, GAMEPLAY, ENDING } GameScreen;
-
-typedef struct Player {
-    Vector2 origin;
-    Vector2 position;
-    Rectangle rectangle;
-    float rotation;
-    Color color;
-    Vector2 spritesheetOffset;
-} Player;
-
-typedef struct Shell {
-    Vector2 origin;
-    Vector2 position;
-    Rectangle rectangle;
-    float rotation;
-    Color color;
-    bool active;
-    Vector2 velocity;
-    float range;
-    int blastRadius;
-    bool soundPlayed;
-} Shell;
-
-typedef struct Ammo {
-    int count;
-    int capacity;
-    int shellIterator;
-    Shell shells[MAX_SHELLS];
-} Ammo;
-
-typedef struct Enemy {
-    Vector2 origin;
-    Vector2 position;
-    Rectangle rectangle;
-    float rotation;
-    Color color;
-    bool active;
-    Vector2 targetPos;
-    float movementSpeed;
-} Enemy;
 
 typedef struct Animation {
     float lifetime;
@@ -84,7 +43,7 @@ typedef struct Animation {
 extern GameScreen currentScreen;
 //extern Font font;
 extern Music music;
-extern Sound fxCoin;
+//extern Sound fxCoin;
 extern Sound fxShoot;
 extern Sound fxImpact;
 //extern Sound fxDistantImpact;
@@ -129,19 +88,19 @@ void UpdateGameplayScreen(void);
 void DrawGameplayScreen(void);
 void UnloadGameplayScreen(void);
 int FinishGameplayScreen(void);
-void InitPlayer();
-void InitAmmo();
-void InitEnemies();
-void UpdateAmmo(float);
-void UpdateEnemies();
-void DrawPlayer();
-void DrawAmmo();
-void DrawEnemies();
+//void InitPlayer();
+//void InitAmmo();
+//void InitEnemies();
+//void UpdateAmmo(float);
+//void UpdateEnemies();
+//void DrawPlayer();
+//void DrawAmmo();
+//void DrawEnemies();
 void Shoot();
 void Explode(int);
 void Reload();
 void SetMessage(char*);
-void ShowMessage();
+void DrawMessage();
 
 //----------------------------------------------------------------------------------
 // Ending Screen Functions Declaration
