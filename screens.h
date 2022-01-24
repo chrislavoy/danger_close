@@ -82,12 +82,12 @@ typedef struct Animation {
 // Global Variables Declaration (shared by several modules)
 //----------------------------------------------------------------------------------
 extern GameScreen currentScreen;
-extern Font font;
+//extern Font font;
 extern Music music;
 extern Sound fxCoin;
 extern Sound fxShoot;
 extern Sound fxImpact;
-extern Sound fxDistantImpact;
+//extern Sound fxDistantImpact;
 extern Texture2D spriteSheet;
 
 #ifdef __cplusplus
