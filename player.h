@@ -28,5 +28,6 @@ void UpdatePlayer(float);
 void DrawPlayer();
 void ChangeRotation(float);
 void ChangeRange(float);
+//void Wrap(float, float, float);
 
 #endif //DANGER_CLOSE_PLAYER_H

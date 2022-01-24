@@ -85,11 +85,11 @@ void UpdateGameplayScreen(void);
 void DrawGameplayScreen(void);
 void UnloadGameplayScreen(void);
 int FinishGameplayScreen(void);
-//void Shoot();
-//void Explode(int);
-//void Reload();
-//void SetMessage(char*);
-//void DrawMessage();
+void Shoot();
+void Explode(int);
+void Reload();
+void SetMessage(char*);
+void DrawMessage();
 
 //----------------------------------------------------------------------------------
 // Ending Screen Functions Declaration

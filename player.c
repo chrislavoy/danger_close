@@ -21,8 +21,8 @@ void InitPlayer(void)
     player.origin = (Vector2){32, 38};
     player.position = (Vector2){ 300, GetScreenHeight()/2 };
     player.rectangle = (Rectangle){player.position.x, player.position.y, 64, 64};
-    player.rotation = 180;
-    player.targetRotation = 180;
+    player.rotation = 0;
+    player.targetRotation = 0;
     player.color = WHITE;
     player.fireRange = MAX_FIRE_RANGE;
 }
@@ -62,7 +62,7 @@ void DrawPlayer()
     // Draw base
     DrawSprite(20, 7, Vector2Add(player.position, (Vector2){0, 6}), player.origin, 0);
     // Draw turret
-    DrawSprite(19, 10, player.position, player.origin, player.rotation - 180);
+    DrawSprite(19, 10, player.position, player.origin, player.rotation);
 }
 
 void ChangeRotation(float amount)

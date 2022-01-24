@@ -60,12 +60,13 @@ bool showMessage = false;
 //----------------------------------------------------------------------------------
 // Gameplay Screen Functions Definition
 //----------------------------------------------------------------------------------
-void Shoot();
-void Explode(int);
-void Reload();
-void SetMessage(char*);
-void DrawMessage();
+//void Shoot();
+//void Explode(int);
+//void Reload();
+//void SetMessage(char*);
+//void DrawMessage();
 void DrawGui();
+float Wrap(float, float, float);
 Vector2 RotationToVector(float);
 
 // Gameplay Screen Initialization logic
@@ -138,9 +139,8 @@ void DrawGameplayScreen(void)
         // Draw range
         DrawCircle(player.position.x, player.position.y, player.fireRange, ColorAlpha(RED, 0.25f));
         // Draw player rotation
-//        Vector2 rotVec = RotationToVector(player.rotation);
-//        DrawLineEx(player.position, rotVec, 25, BLUE);
-//        DrawCircleV(rotVec, 50, GREEN);
+        Vector2 rotVec = Vector2Add(Vector2Scale(RotationToVector(player.rotation), 250), player.position);
+        DrawLineEx(player.position, rotVec, 25, BLUE);
         // Draw shells
         for (int i = 0; i < ammo.capacity; ++i)
         {
@@ -191,7 +191,7 @@ void Shoot()
 {
     if (ammo.count > 0)
     {
-        variance = (Vector2){(float)GetRandomValue(-10, 10)/100, (float)GetRandomValue(-10, 10)/100};
+        variance = (Vector2){(float)GetRandomValue(-5, 5)/100, (float)GetRandomValue(-5, 5)/100};
 
         SetSoundPitch(fxShoot, 1);
         PlaySound(fxShoot);
@@ -318,5 +318,5 @@ void DrawSprite(int offsetX, int offsetY, Vector2 position, Vector2 origin, floa
 }
 
 Vector2 RotationToVector(float rotation){
-    return (Vector2){-sinf(ammo.shells[ammo.shellIterator].rotation * DEG2RAD), cosf(ammo.shells[ammo.shellIterator].rotation * DEG2RAD)};
+    return (Vector2){sinf(rotation * DEG2RAD), -cosf(rotation * DEG2RAD)};
 }
