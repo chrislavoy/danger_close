@@ -60,7 +60,13 @@ bool showMessage = false;
 //----------------------------------------------------------------------------------
 // Gameplay Screen Functions Definition
 //----------------------------------------------------------------------------------
+void Shoot();
+void Explode(int);
+void Reload();
+void SetMessage(char*);
+void DrawMessage();
 void DrawGui();
+Vector2 RotationToVector(float);
 
 // Gameplay Screen Initialization logic
 void InitGameplayScreen(void)
@@ -123,14 +129,18 @@ void DrawGameplayScreen(void)
 {
     // TODO: Draw GAMEPLAY screen here!
 
+    // Draw "radar" view
     BeginTextureMode(sideRenderTexture);
         ClearBackground(RAYWHITE);
         BeginMode2D(mapCamera);
-        // Begin drawing "radar" view
         // Draw player
         DrawRectangle(player.position.x - 25, player.position.y - 25, 50, 50, BLUE);
         // Draw range
-        DrawCircle(player.position.x, player.position.y, player.fireRange, ColorAlpha(RED, 0.25));
+        DrawCircle(player.position.x, player.position.y, player.fireRange, ColorAlpha(RED, 0.25f));
+        // Draw player rotation
+//        Vector2 rotVec = RotationToVector(player.rotation);
+//        DrawLineEx(player.position, rotVec, 25, BLUE);
+//        DrawCircleV(rotVec, 50, GREEN);
         // Draw shells
         for (int i = 0; i < ammo.capacity; ++i)
         {
@@ -181,7 +191,7 @@ void Shoot()
 {
     if (ammo.count > 0)
     {
-        variance = (Vector2){(float)GetRandomValue(0, 10)/100, (float)GetRandomValue(0, 10)/100};
+        variance = (Vector2){(float)GetRandomValue(-10, 10)/100, (float)GetRandomValue(-10, 10)/100};
 
         SetSoundPitch(fxShoot, 1);
         PlaySound(fxShoot);
@@ -190,7 +200,7 @@ void Shoot()
         ammo.shells[ammo.shellIterator].position = player.position;
         ammo.shells[ammo.shellIterator].active = true;
         ammo.shells[ammo.shellIterator].range = player.fireRange - (float)GetRandomValue(-100, 100);
-        ammo.shells[ammo.shellIterator].velocity = (Vector2){-sinf(ammo.shells[ammo.shellIterator].rotation * DEG2RAD), cosf(ammo.shells[ammo.shellIterator].rotation * DEG2RAD)};
+        ammo.shells[ammo.shellIterator].velocity = RotationToVector(ammo.shells[ammo.shellIterator].rotation);
         ammo.shells[ammo.shellIterator].velocity = Vector2Add(ammo.shells[ammo.shellIterator].velocity, variance);
 
         ammo.shellIterator++;
@@ -305,4 +315,8 @@ void DrawSprite(int offsetX, int offsetY, Vector2 position, Vector2 origin, floa
     Rectangle source = (Rectangle){offsetX*64, offsetY*64, 64, 64};
     Rectangle dest = (Rectangle){position.x, position.y, 64, 64};
     DrawTexturePro(spriteSheet, source, dest, origin, rotation, WHITE);
+}
+
+Vector2 RotationToVector(float rotation){
+    return (Vector2){-sinf(ammo.shells[ammo.shellIterator].rotation * DEG2RAD), cosf(ammo.shells[ammo.shellIterator].rotation * DEG2RAD)};
 }

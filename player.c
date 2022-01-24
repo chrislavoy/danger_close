@@ -43,12 +43,12 @@ void UpdatePlayer(float dt)
 
     if (IsKeyDown(KEY_UP))
     {
-        ChangeRange(100 * dt);
+        ChangeRange(200 * dt);
     }
 
     if (IsKeyDown(KEY_DOWN))
     {
-        ChangeRange(-100 * dt);
+        ChangeRange(-200 * dt);
     }
 
     if (IsKeyPressed(KEY_SPACE))
