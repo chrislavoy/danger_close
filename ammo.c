@@ -24,7 +24,7 @@ void InitAmmo(void)
         ammo.shells[i].active = false;
         ammo.shells[i].velocity = (Vector2){0, 0};
         ammo.shells[i].range = 0;
-        ammo.shells[i].blastRadius = 100;
+        ammo.shells[i].blastRadius = 200;
     }
 }
 
