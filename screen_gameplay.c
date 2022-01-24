@@ -52,6 +52,7 @@ Ammo ammo;
 Enemies enemies;
 
 Vector2 fireTargetPos = (Vector2){0, 0};
+Vector2 variance = (Vector2){0, 0};
 
 char * feedbackMessage;
 bool showMessage = false;
@@ -158,6 +159,8 @@ void DrawGameplayScreen(void)
     DrawGui();
 
     DrawMessage();
+
+//    DrawText(TextFormat("Variance (%f, %f)", variance.x, variance.y), 10, 40, 20, BLACK);
 }
 
 // Gameplay Screen Unload logic
@@ -178,16 +181,19 @@ void Shoot()
 {
     if (ammo.count > 0)
     {
+        variance = (Vector2){(float)GetRandomValue(0, 10)/100, (float)GetRandomValue(0, 10)/100};
+
         SetSoundPitch(fxShoot, 1);
         PlaySound(fxShoot);
 
         ammo.shells[ammo.shellIterator].rotation = player.rotation;
         ammo.shells[ammo.shellIterator].position = player.position;
         ammo.shells[ammo.shellIterator].active = true;
+        ammo.shells[ammo.shellIterator].range = player.fireRange - (float)GetRandomValue(-100, 100);
         ammo.shells[ammo.shellIterator].velocity = (Vector2){-sinf(ammo.shells[ammo.shellIterator].rotation * DEG2RAD), cosf(ammo.shells[ammo.shellIterator].rotation * DEG2RAD)};
-        ammo.shells[ammo.shellIterator].range = player.fireRange;
-        ammo.shellIterator++;
+        ammo.shells[ammo.shellIterator].velocity = Vector2Add(ammo.shells[ammo.shellIterator].velocity, variance);
 
+        ammo.shellIterator++;
         ammo.count--;
     }
 }
@@ -259,7 +265,7 @@ void DrawGui()
     // Rotation controls
     if (GuiButton((Rectangle){670, 250, 25, 25}, "<<"))
     {
-        ChangeRotation(-50);
+        ChangeRotation(-60);
     }
     if (GuiButton((Rectangle){700, 250, 25, 25}, "<"))
     {
@@ -272,7 +278,7 @@ void DrawGui()
     }
     if (GuiButton((Rectangle){820, 250, 25, 25}, ">>"))
     {
-        ChangeRotation(50);
+        ChangeRotation(60);
     }
 
     // Range controls

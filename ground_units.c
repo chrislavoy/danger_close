@@ -14,18 +14,14 @@ void InitEnemies(void) {
     for (int i = 0; i < enemies.capacity; ++i)
     {
         enemies.units[i].origin = (Vector2){32, 32};
-        enemies.units[i].position = Vector2Zero();
+        enemies.units[i].position = (Vector2){GetRandomValue(-2999, 2999), GetRandomValue(-3000, -2000)};
         enemies.units[i].rectangle = (Rectangle) {0, 0, 64, 64};
         enemies.units[i].rotation = 0;
         enemies.units[i].color = WHITE;
         enemies.units[i].movementSpeed = 1;
-        enemies.units[i].targetPos = Vector2Zero();
-        enemies.units[i].active = false;
+        enemies.units[i].targetPos = Vector2Add(enemies.units[i].position, (Vector2){0, 1000});
+        enemies.units[i].active = true;
     }
-
-    enemies.units[0].position = (Vector2) {10, 10};
-    enemies.units[0].targetPos = (Vector2) {800, 400};
-    enemies.units[0].active = true;
 }
 
 void UpdateEnemies()

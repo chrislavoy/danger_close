@@ -63,8 +63,6 @@ void DrawPlayer()
     DrawSprite(20, 7, Vector2Add(player.position, (Vector2){0, 6}), player.origin, 0);
     // Draw turret
     DrawSprite(19, 10, player.position, player.origin, player.rotation - 180);
-
-    DrawText(TextFormat("Target rotation %f.0", player.targetRotation), 10, 40, 20, BLACK);
 }
 
 void ChangeRotation(float amount)
