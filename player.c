@@ -73,24 +73,14 @@ void ChangeRotation(float amount)
 
     player.targetRotation = Wrap(player.targetRotation, 0, 360);
 
+    // I don't love this, but this sets the rotation direction
+    // based on how far the player needs to rotate
     float delta = player.rotation - player.targetRotation;
     float absDelta = fabsf(delta);
 
-    if (delta < 0)
-    {
-        CCW = false;
-    }
-    else
-    {
-        CCW = true;
-    }
-
-    if (absDelta > 180)
-    {
-        CCW = !CCW;
-    }
-
-    TraceLog(LOG_INFO, TextFormat("%f", player.rotation - player.targetRotation));
+    if (delta < 0) CCW = false;
+    else CCW = true;
+    if (absDelta > 180) CCW = !CCW;
 }
 
 void ChangeRange(float amount)
@@ -103,7 +93,6 @@ void ChangeRange(float amount)
 void UpdateRotation(float dt)
 {
     float delta = fabsf(player.rotation - player.targetRotation);
-//    float absDelta = fabsf(delta);
 
     if (delta > 0.5f)
     {

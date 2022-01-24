@@ -244,7 +244,10 @@ void DrawMessage()
 
 void DrawGui()
 {
+    // Background
     DrawRectangle(600, 0, 300, GetScreenHeight(), LIGHTGRAY);
+
+    // Radar
     DrawTexturePro(
             sideRenderTexture.texture,
             (Rectangle){0, 0, -sideRenderTexture.texture.width,sideRenderTexture.texture.height},
@@ -253,37 +256,41 @@ void DrawGui()
             180,
             WHITE);
 
-    // TODO: Change these to GUI elements
+    // Rotation controls
     if (GuiButton((Rectangle){670, 250, 25, 25}, "<<"))
     {
         ChangeRotation(-50);
     }
-    if (GuiButton((Rectangle){695, 250, 25, 25}, "<"))
+    if (GuiButton((Rectangle){700, 250, 25, 25}, "<"))
     {
         ChangeRotation(-10);
     }
-    GuiLabelButton((Rectangle){725, 250, 25, 25}, TextFormat("%f.2", player.rotation));
-//    DrawText(TextFormat("%f.2", player.rotation), 720, 250, 25, BLACK);
-    if (GuiButton((Rectangle){760, 250, 25, 25}, ">"))
+    DrawText(TextFormat("%d", (int)player.targetRotation), 740, 253, 20, BLACK);
+    if (GuiButton((Rectangle){790, 250, 25, 25}, ">"))
     {
         ChangeRotation(10);
     }
-    if (GuiButton((Rectangle){785, 250, 25, 25}, ">>"))
+    if (GuiButton((Rectangle){820, 250, 25, 25}, ">>"))
     {
         ChangeRotation(50);
     }
-//    player.targetRotation = GuiSlider((Rectangle){670, 250, 175, 25}, "Rotation", TextFormat("%.2f", player.targetRotation), player.targetRotation, 0, 360);
+
+    // Range controls
     player.fireRange = GuiSlider((Rectangle){670, 300, 175, 25}, "Distance", TextFormat("%.2f", player.fireRange), player.fireRange, MIN_FIRE_RANGE, MAX_FIRE_RANGE);
+
+    // Fire button
     if (GuiButton((Rectangle){670, 350, 175, 25}, "Fire"))
     {
         Shoot();
     }
 
+    // Reload button
     if (GuiButton((Rectangle){670, 400, 175, 25}, "Reload"))
     {
         Reload();
     }
 
+    // Ammo count
     GuiLabel((Rectangle){670, 450, 175, 25}, TextFormat("%d / %d", ammo.count, ammo.capacity));
 }
 
