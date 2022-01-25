@@ -8,8 +8,11 @@
 #include "raylib.h"
 
 #define MAX_ENEMIES 100
+#define MAX_FRIENDLIES 100
+#define FRIENDLY_TEAM 0
+#define ENEMY_TEAM 1
 
-typedef struct Enemy {
+typedef struct Unit {
     Vector2 origin;
     Vector2 position;
     Rectangle rectangle;
@@ -18,17 +21,21 @@ typedef struct Enemy {
     bool active;
     Vector2 targetPos;
     float movementSpeed;
+	short team;
 } Enemy;
 
-typedef struct Enemies {
+typedef struct Units {
     int capacity;
     Enemy units[MAX_ENEMIES];
-} Enemies;
+} Units;
 
-extern Enemies enemies;
+extern Units enemyUnits;
+extern Units friendlyUnits;
 
-void InitEnemies(void);
-void UpdateEnemies();
-void DrawEnemies();
+void InitUnits(void);
+void UpdateUnits();
+void DrawUnits();
+int DamageUnitsInsideArea(Vector2, float, short);
+//void DestroyUnit(int);
 
 #endif //DANGER_CLOSE_GROUND_UNITS_H

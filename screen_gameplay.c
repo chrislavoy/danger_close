@@ -23,6 +23,7 @@
 *
 **********************************************************************************************/
 
+#include <string.h>
 #include "raylib.h"
 #include "raymath.h"
 #include "extras/raygui.h"
@@ -37,9 +38,9 @@
 static int framesCounter = 0;
 static int finishScreen = 0;
 
-const float TIME_BETWEEN_FEEDBACK = 10.0f;
+const float TIME_BETWEEN_FEEDBACK = 5.0f;
 
-float feedbackTimer = 0;
+float feedbackTimer = 5;
 float soundVolume = 1.0f;
 
 Camera2D worldCamera;
@@ -49,12 +50,16 @@ RenderTexture2D sideRenderTexture;
 //Shader shader;
 Player player;
 Ammo ammo;
-Enemies enemies;
+Units enemyUnits;
+Units friendlyUnits;
 
 Vector2 fireTargetPos = (Vector2){0, 0};
 Vector2 variance = (Vector2){0, 0};
 
-char * feedbackMessage;
+int guiWidth = 250;
+
+char feedbackMessage[50];
+
 bool showMessage = false;
 
 //----------------------------------------------------------------------------------
@@ -77,13 +82,13 @@ void InitGameplayScreen(void)
     finishScreen = 0;
     InitAmmo();
     InitPlayer();
-    InitEnemies();
+	InitUnits();
 
 	mainRenderTexture = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
 	SetTextureFilter(mainRenderTexture.texture, TEXTURE_FILTER_ANISOTROPIC_16X);
 
     worldCamera.target = player.position;
-    worldCamera.offset = (Vector2){325, 250};
+    worldCamera.offset = (Vector2){GetScreenWidth()/2 - guiWidth/2, GetScreenHeight()/2};
     worldCamera.rotation = 0;
     worldCamera.zoom = 1;
 
@@ -111,21 +116,22 @@ void UpdateGameplayScreen(void)
     UpdatePlayer(dt);
 
     UpdateAmmo(dt, player.position);
-    UpdateEnemies();
+	UpdateUnits();
 
     if (feedbackTimer > 0)
     {
         feedbackTimer -= dt;
+		showMessage = true;
 
         if (feedbackTimer < 0)
         {
             feedbackTimer = 0;
-            feedbackMessage = "";
+//            feedbackMessage = "";
             showMessage = false;
         }
     }
 
-	worldCamera.target.y -= 10 * dt;
+//	worldCamera.target.y -= 10 * dt;
 }
 
 // Gameplay Screen Draw logic
@@ -151,12 +157,12 @@ void DrawGameplayScreen(void)
 	                DrawRectangle(shell.position.x, shell.position.y, 50, 50, BLACK);
 	            }
 	        }
-	        // Draw enemies
-	        for (int i = 0; i < enemies.capacity; ++i)
+	        // Draw enemyUnits
+	        for (int i = 0; i < enemyUnits.capacity; ++i)
 	        {
-	            if (enemies.units[i].active)
+	            if (enemyUnits.units[i].active)
 	            {
-	                DrawRectangle(enemies.units[i].position.x, enemies.units[i].position.y, 50, 50, RED);
+	                DrawRectangle(enemyUnits.units[i].position.x, enemyUnits.units[i].position.y, 50, 50, RED);
 	            }
 	        }
         EndMode2D();
@@ -167,7 +173,7 @@ void DrawGameplayScreen(void)
 			ClearBackground(RAYWHITE);
 			DrawAmmo();
 			DrawPlayer();
-			DrawEnemies();
+	DrawUnits();
 		EndMode2D();
 	EndTextureMode();
 
@@ -189,6 +195,7 @@ void UnloadGameplayScreen(void)
     // TODO: Unload GAMEPLAY screen variables here!
     UnloadRenderTexture(mainRenderTexture);
     UnloadRenderTexture(sideRenderTexture);
+//	MemFree(feedbackMessage);
 }
 
 // Gameplay Screen should finish?
@@ -225,21 +232,24 @@ void Explode(int shellIndex)
     PlaySoundMulti(fxImpact);
     ammo.shells[shellIndex].active = false;
 
-    int enemiesHit = 0;
+    int enemiesHit = DamageUnitsInsideArea(ammo.shells[shellIndex].position, ammo.shells[shellIndex].blastRadius, ENEMY_TEAM);
 
-    for (int i = 0; i < enemies.capacity; ++i)
-    {
-        if (enemies.units[i].active)
-        {
-            if (CheckCollisionPointCircle(ammo.shells[shellIndex].position, enemies.units[i].position, ammo.shells[shellIndex].blastRadius))
-            {
-                enemies.units[i].active = false;
-                enemiesHit++;
-            }
-        }
-    }
+//    for (int i = 0; i < enemyUnits.capacity; ++i)
+//    {
+//        if (enemyUnits.units[i].active)
+//        {
+//            if (CheckCollisionPointCircle(ammo.shells[shellIndex].position, enemyUnits.units[i].position, ammo.shells[shellIndex].blastRadius))
+//            {
+//	            enemyUnits.units[i].active = false;
+//                enemiesHit++;
+//            }
+//        }
+//    }
 
-    SetMessage("Good hits!");
+	if (enemiesHit > 0)
+	{
+		SetMessage("Good hits!");
+	}
 }
 
 void Reload()
@@ -250,9 +260,10 @@ void Reload()
 
 void SetMessage(char* message)
 {
-    if (feedbackTimer < 0)
+    if (feedbackTimer <= 0)
     {
-        feedbackMessage = message;
+//	    TextAppend(message, (const char *)'\0', (int *) strlen(message));
+	    TextCopy(feedbackMessage, message);
         showMessage = true;
         feedbackTimer = TIME_BETWEEN_FEEDBACK;
     }
@@ -262,9 +273,11 @@ void DrawMessage()
 {
     if (showMessage)
     {
-        DrawRectangleRec((Rectangle){5, 305, 590, 190}, WHITE);
-        DrawRectangleLinesEx((Rectangle){5, 305, 590, 190}, 3, BLACK);
-        DrawText(feedbackMessage, 15, 315, 30, BLACK);
+		int startY = 500;
+		int endY = GetScreenHeight() - startY - 5;
+        DrawRectangleRec    ((Rectangle){5, startY, 640, endY}, WHITE);
+        DrawRectangleLinesEx((Rectangle){5, startY, 640, endY}, 3, BLACK);
+        DrawText(feedbackMessage, 15, startY + 15, 30, BLACK);
     }
 }
 

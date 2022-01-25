@@ -32,7 +32,7 @@ Texture2D spriteSheet;
 
 // Global Variables Definition
 int screenWidth = 900;
-int screenHeight = 500;
+int screenHeight = 675;
 
 // Required variables to manage screen transitions (fade-in, fade-out)
 static float transAlpha = 0.0f;
