@@ -28,6 +28,7 @@ Music music = { 0 };
 Sound fxShoot = { 0 };
 Sound fxImpact = { 0 };
 Texture2D spriteSheet;
+Texture2D worldTexture;
 
 // Global Variables Definition
 int screenWidth = 900;
@@ -65,6 +66,9 @@ int main()
 
     spriteSheet = LoadTexture("assets/towerDefense_tilesheet.png");
     SetTextureFilter(spriteSheet, TEXTURE_FILTER_ANISOTROPIC_16X);
+
+	worldTexture = LoadTexture("assets/DangerClose.png");
+	SetTextureFilter(worldTexture, TEXTURE_FILTER_ANISOTROPIC_16X);
 
 //    SetMusicVolume(music, 1.0f);
 //    PlayMusicStream(music);
@@ -105,6 +109,8 @@ int main()
     UnloadMusicStream(music);
     UnloadSound(fxShoot);
     UnloadSound(fxImpact);
+	UnloadTexture(spriteSheet);
+	UnloadTexture(worldTexture);
 
     // De-Initialization
     CloseAudioDevice();

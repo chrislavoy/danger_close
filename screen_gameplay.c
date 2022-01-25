@@ -39,7 +39,7 @@ static int finishScreen = 0;
 
 const float TIME_BETWEEN_FEEDBACK = 5.0f;
 
-float feedbackTimer = 5;
+float feedbackTimer = 0;
 float soundVolume = 1.0f;
 
 Camera2D worldCamera;
@@ -132,6 +132,8 @@ void DrawGameplayScreen(void)
     BeginTextureMode(sideRenderTexture);
         BeginMode2D(mapCamera);
 			ClearBackground(RAYWHITE);
+			// Draw world
+			DrawTextureEx(worldTexture, (Vector2){-3200, -3200}, 0, 1, WHITE);
 	        // Draw player
 	        DrawRectangle(player.position.x - 25, player.position.y - 25, 50, 50, BLUE);
 	        // Draw range
@@ -162,9 +164,10 @@ void DrawGameplayScreen(void)
 	BeginTextureMode(mainRenderTexture);
 		BeginMode2D(worldCamera);
 			ClearBackground(RAYWHITE);
+			DrawTextureEx(worldTexture, (Vector2){-3200, -3200}, 0, 1, WHITE);
 			DrawAmmo();
 			DrawPlayer();
-	DrawUnits();
+			DrawUnits();
 		EndMode2D();
 	EndTextureMode();
 

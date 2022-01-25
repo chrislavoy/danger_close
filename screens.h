@@ -45,6 +45,7 @@ extern Music music;
 extern Sound fxShoot;
 extern Sound fxImpact;
 extern Texture2D spriteSheet;
+extern Texture2D worldTexture;
 
 #ifdef __cplusplus
 extern "C" {            // Prevents name mangling of functions
