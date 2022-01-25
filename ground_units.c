@@ -121,8 +121,3 @@ int DamageUnitsInsideArea(Vector2 position, float radius, short team)
 
 	return hits;
 }
-
-//void DestroyUnit(int index)
-//{
-//
-//}

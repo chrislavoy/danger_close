@@ -36,6 +36,5 @@ void InitUnits(void);
 void UpdateUnits();
 void DrawUnits();
 int DamageUnitsInsideArea(Vector2, float, short);
-//void DestroyUnit(int);
 
 #endif //DANGER_CLOSE_GROUND_UNITS_H

@@ -23,7 +23,6 @@
 *
 **********************************************************************************************/
 
-#include <string.h>
 #include "raylib.h"
 #include "raymath.h"
 #include "extras/raygui.h"
@@ -65,11 +64,6 @@ bool showMessage = false;
 //----------------------------------------------------------------------------------
 // Gameplay Screen Functions Definition
 //----------------------------------------------------------------------------------
-//void Shoot();
-//void Explode(int);
-//void Reload();
-//void SetMessage(char*);
-//void DrawMessage();
 void DrawGui();
 float Wrap(float, float, float);
 Vector2 RotationToVector(float);
@@ -126,12 +120,9 @@ void UpdateGameplayScreen(void)
         if (feedbackTimer < 0)
         {
             feedbackTimer = 0;
-//            feedbackMessage = "";
             showMessage = false;
         }
     }
-
-//	worldCamera.target.y -= 10 * dt;
 }
 
 // Gameplay Screen Draw logic
@@ -195,7 +186,6 @@ void UnloadGameplayScreen(void)
     // TODO: Unload GAMEPLAY screen variables here!
     UnloadRenderTexture(mainRenderTexture);
     UnloadRenderTexture(sideRenderTexture);
-//	MemFree(feedbackMessage);
 }
 
 // Gameplay Screen should finish?
@@ -234,18 +224,6 @@ void Explode(int shellIndex)
 
     int enemiesHit = DamageUnitsInsideArea(ammo.shells[shellIndex].position, ammo.shells[shellIndex].blastRadius, ENEMY_TEAM);
 
-//    for (int i = 0; i < enemyUnits.capacity; ++i)
-//    {
-//        if (enemyUnits.units[i].active)
-//        {
-//            if (CheckCollisionPointCircle(ammo.shells[shellIndex].position, enemyUnits.units[i].position, ammo.shells[shellIndex].blastRadius))
-//            {
-//	            enemyUnits.units[i].active = false;
-//                enemiesHit++;
-//            }
-//        }
-//    }
-
 	if (enemiesHit > 0)
 	{
 		SetMessage("Good hits!");
@@ -262,7 +240,6 @@ void SetMessage(char* message)
 {
     if (feedbackTimer <= 0)
     {
-//	    TextAppend(message, (const char *)'\0', (int *) strlen(message));
 	    TextCopy(feedbackMessage, message);
         showMessage = true;
         feedbackTimer = TIME_BETWEEN_FEEDBACK;
