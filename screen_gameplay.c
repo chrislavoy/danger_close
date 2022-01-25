@@ -42,9 +42,9 @@ const float TIME_BETWEEN_FEEDBACK = 10.0f;
 float feedbackTimer = 0;
 float soundVolume = 1.0f;
 
-//Camera2D worldCamera;
+Camera2D worldCamera;
 Camera2D mapCamera;
-//RenderTexture mainRenderTexture;
+RenderTexture mainRenderTexture;
 RenderTexture2D sideRenderTexture;
 //Shader shader;
 Player player;
@@ -79,15 +79,16 @@ void InitGameplayScreen(void)
     InitPlayer();
     InitEnemies();
 
-//    worldCamera.target = player.position;
-//    worldCamera.offset = Vector2Zero();
-//    worldCamera.rotation = 0;
-//    worldCamera.zoom = 1;
+	mainRenderTexture = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
+	SetTextureFilter(mainRenderTexture.texture, TEXTURE_FILTER_ANISOTROPIC_16X);
 
-//    mainRenderTexture = LoadRenderTexture(600, GetScreenHeight());
+    worldCamera.target = player.position;
+    worldCamera.offset = (Vector2){325, 250};
+    worldCamera.rotation = 0;
+    worldCamera.zoom = 1;
 
     sideRenderTexture = LoadRenderTexture(600, 600);
-    SetTextureFilter(sideRenderTexture.texture, TEXTURE_FILTER_BILINEAR);
+    SetTextureFilter(sideRenderTexture.texture, TEXTURE_FILTER_ANISOTROPIC_16X);
 
     mapCamera.target = player.position;
     mapCamera.offset = (Vector2) {sideRenderTexture.texture.width/2, sideRenderTexture.texture.height/2};
@@ -123,61 +124,70 @@ void UpdateGameplayScreen(void)
             showMessage = false;
         }
     }
+
+	worldCamera.target.y -= 10 * dt;
 }
 
 // Gameplay Screen Draw logic
 void DrawGameplayScreen(void)
 {
-    // TODO: Draw GAMEPLAY screen here!
-
     // Draw "radar" view
     BeginTextureMode(sideRenderTexture);
-        ClearBackground(RAYWHITE);
         BeginMode2D(mapCamera);
-        // Draw player
-        DrawRectangle(player.position.x - 25, player.position.y - 25, 50, 50, BLUE);
-        // Draw range
-        DrawCircle(player.position.x, player.position.y, player.fireRange, ColorAlpha(RED, 0.25f));
-        // Draw player rotation
-        Vector2 rotVec = Vector2Add(Vector2Scale(RotationToVector(player.rotation), 250), player.position);
-        DrawLineEx(player.position, rotVec, 25, BLUE);
-        // Draw shells
-        for (int i = 0; i < ammo.capacity; ++i)
-        {
-            Shell shell = ammo.shells[i];
-            if (shell.active)
-            {
-                DrawRectangle(shell.position.x, shell.position.y, 50, 50, BLACK);
-            }
-        }
-        // Draw enemies
-        for (int i = 0; i < enemies.capacity; ++i)
-        {
-            if (enemies.units[i].active)
-            {
-                DrawRectangle(enemies.units[i].position.x, enemies.units[i].position.y, 50, 50, RED);
-            }
-        }
+			ClearBackground(RAYWHITE);
+	        // Draw player
+	        DrawRectangle(player.position.x - 25, player.position.y - 25, 50, 50, BLUE);
+	        // Draw range
+	        DrawCircle(player.position.x, player.position.y, player.fireRange, ColorAlpha(RED, 0.25f));
+	        // Draw player rotation
+	        Vector2 rotVec = Vector2Add(Vector2Scale(RotationToVector(player.rotation), 250), player.position);
+	        DrawLineEx(player.position, rotVec, 25, BLUE);
+	        // Draw shells
+	        for (int i = 0; i < ammo.capacity; ++i)
+	        {
+	            Shell shell = ammo.shells[i];
+	            if (shell.active)
+	            {
+	                DrawRectangle(shell.position.x, shell.position.y, 50, 50, BLACK);
+	            }
+	        }
+	        // Draw enemies
+	        for (int i = 0; i < enemies.capacity; ++i)
+	        {
+	            if (enemies.units[i].active)
+	            {
+	                DrawRectangle(enemies.units[i].position.x, enemies.units[i].position.y, 50, 50, RED);
+	            }
+	        }
         EndMode2D();
     EndTextureMode();
 
+	BeginTextureMode(mainRenderTexture);
+		BeginMode2D(worldCamera);
+			ClearBackground(RAYWHITE);
+			DrawAmmo();
+			DrawPlayer();
+			DrawEnemies();
+		EndMode2D();
+	EndTextureMode();
+
     ClearBackground(RAYWHITE);
-    DrawAmmo();
-    DrawPlayer();
-    DrawEnemies();
-
+	DrawTexturePro(
+		mainRenderTexture.texture,
+		(Rectangle){0, 0, mainRenderTexture.texture.width, -mainRenderTexture.texture.height},
+		(Rectangle){0, 0, GetScreenWidth(), GetScreenHeight()},
+		(Vector2){0, 0},
+		0,
+		WHITE);
     DrawGui();
-
     DrawMessage();
-
-//    DrawText(TextFormat("Variance (%f, %f)", variance.x, variance.y), 10, 40, 20, BLACK);
 }
 
 // Gameplay Screen Unload logic
 void UnloadGameplayScreen(void)
 {
     // TODO: Unload GAMEPLAY screen variables here!
-//    UnloadRenderTexture(mainRenderTexture);
+    UnloadRenderTexture(mainRenderTexture);
     UnloadRenderTexture(sideRenderTexture);
 }
 
@@ -261,16 +271,16 @@ void DrawMessage()
 void DrawGui()
 {
     // Background
-    DrawRectangle(600, 0, 300, GetScreenHeight(), LIGHTGRAY);
+    DrawRectangle(650, 0, 250, GetScreenHeight(), LIGHTGRAY);
 
     // Radar
     DrawTexturePro(
-            sideRenderTexture.texture,
-            (Rectangle){0, 0, -sideRenderTexture.texture.width,sideRenderTexture.texture.height},
-            (Rectangle){750, 117, 230, 230},
-            (Vector2){115, 115},
-            180,
-            WHITE);
+        sideRenderTexture.texture,
+        (Rectangle){0, 0, -sideRenderTexture.texture.width, sideRenderTexture.texture.height},
+        (Rectangle){776, 117, 230, 230},
+        (Vector2){115, 115},
+        180,
+        WHITE);
 
     // Rotation controls
     if (GuiButton((Rectangle){670, 250, 25, 25}, "<<"))

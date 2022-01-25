@@ -19,7 +19,7 @@ bool CCW = false;
 void InitPlayer(void)
 {
     player.origin = (Vector2){32, 38};
-    player.position = (Vector2){ 300, GetScreenHeight()/2 };
+    player.position = (Vector2){0, 0};
     player.rectangle = (Rectangle){player.position.x, player.position.y, 64, 64};
     player.rotation = 0;
     player.targetRotation = 0;
