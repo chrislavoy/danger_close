@@ -13,9 +13,6 @@ int EnemyUnitInRange(int, Vector2, float);
 // Also declared in screens.h, implemented in screen_gameplay.c
 void DrawSprite(int offsetX, int offsetY, Vector2 position, Vector2 origin, float rotation);
 
-#define HIT_CHANCE 0.15f
-#define DETECTION_RANGE 400
-
 void InitUnits(void)
 {
     InitEnemies();
@@ -39,6 +36,7 @@ void InitEnemies()
 		enemyUnits.units[i].active = true;
 		enemyUnits.units[i].team = ENEMY_TEAM;
         enemyUnits.units[i].target = -1;
+        enemyUnits.units[i].shotTimer = 0;
 	}
 }
 
@@ -58,6 +56,7 @@ void InitFriendlies()
 		friendlyUnits.units[i].active = true;
 		friendlyUnits.units[i].team = FRIENDLY_TEAM;
         friendlyUnits.units[i].target = -1;
+        friendlyUnits.units[i].shotTimer = 0;
 	}
 }
 
@@ -68,6 +67,15 @@ void UpdateUnits()
         Unit* unit = &enemyUnits.units[i];
         if (unit->active)
         {
+            if (unit->shotTimer > 0)
+            {
+                unit->shotTimer -= GetFrameTime();
+                if (unit->shotTimer < 0)
+                {
+                    unit->shotTimer = 0;
+                }
+            }
+
             if (unit->target == -1)
             {
                 int index = EnemyUnitInRange(FRIENDLY_TEAM, unit->position, DETECTION_RANGE);
@@ -87,7 +95,12 @@ void UpdateUnits()
             {
                 if (friendlyUnits.units[unit->target].active)
                 {
-                    AttackUnit(FRIENDLY_TEAM, unit->target);
+                    if (unit->shotTimer == 0)
+                    {
+                        PlaySoundMulti(fxUnitShoot);
+                        AttackUnit(FRIENDLY_TEAM, unit->target);
+                        unit->shotTimer = SHOT_TIMER_MAX;
+                    }
                 }
                 else
                 {
@@ -102,6 +115,15 @@ void UpdateUnits()
         Unit* unit = &friendlyUnits.units[i];
 		if (unit->active)
 		{
+            if (unit->shotTimer > 0)
+            {
+                unit->shotTimer -= GetFrameTime();
+                if (unit->shotTimer < 0)
+                {
+                    unit->shotTimer = 0;
+                }
+            }
+
             if (unit->target == -1)
             {
 
@@ -122,7 +144,12 @@ void UpdateUnits()
             {
                 if (enemyUnits.units[unit->target].active)
                 {
-                    AttackUnit(ENEMY_TEAM, unit->target);
+                    if (unit->shotTimer == 0)
+                    {
+                        PlaySoundMulti(fxUnitShoot);
+                        AttackUnit(ENEMY_TEAM, unit->target);
+                        unit->shotTimer = SHOT_TIMER_MAX;
+                    }
                 }
                 else
                 {

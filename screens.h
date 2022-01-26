@@ -44,6 +44,7 @@ extern GameScreen currentScreen;
 extern Music music;
 extern Sound fxShoot;
 extern Sound fxImpact;
+extern Sound fxUnitShoot;
 extern Texture2D spriteSheet;
 extern Texture2D worldTexture;
 

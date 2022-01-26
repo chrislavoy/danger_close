@@ -27,6 +27,7 @@ GameScreen currentScreen = 0;
 Music music = { 0 };
 Sound fxShoot = { 0 };
 Sound fxImpact = { 0 };
+Sound fxUnitShoot = { 0 };
 Texture2D spriteSheet;
 Texture2D worldTexture;
 
@@ -63,6 +64,7 @@ int main()
     music = LoadMusicStream("assets/backgroundMusic.mp3");
     fxShoot = LoadSound("assets/gun.wav");
     fxImpact = LoadSound("assets/impact.wav");
+    fxUnitShoot = LoadSound("assets/unitShoot.mp3");
 
     spriteSheet = LoadTexture("assets/towerDefense_tilesheet.png");
     SetTextureFilter(spriteSheet, TEXTURE_FILTER_ANISOTROPIC_16X);
@@ -109,6 +111,7 @@ int main()
     UnloadMusicStream(music);
     UnloadSound(fxShoot);
     UnloadSound(fxImpact);
+    UnloadSound(fxUnitShoot);
 	UnloadTexture(spriteSheet);
 	UnloadTexture(worldTexture);
 

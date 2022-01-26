@@ -11,6 +11,9 @@
 #define MAX_FRIENDLIES 100
 #define FRIENDLY_TEAM 0
 #define ENEMY_TEAM 1
+#define HIT_CHANCE 0.15f
+#define DETECTION_RANGE 400
+#define SHOT_TIMER_MAX 3.0f
 
 typedef struct Unit {
     Vector2 origin;
@@ -23,6 +26,7 @@ typedef struct Unit {
     float movementSpeed;
 	short team;
     int target;
+    float shotTimer;
 } Unit;
 
 typedef struct Units {
@@ -32,6 +36,7 @@ typedef struct Units {
 
 extern Units enemyUnits;
 extern Units friendlyUnits;
+extern Sound fxUnitShoot;
 
 void InitUnits(void);
 void UpdateUnits();
