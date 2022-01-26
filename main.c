@@ -34,6 +34,8 @@ Texture2D worldTexture;
 // Global Variables Definition
 int screenWidth = 900;
 int screenHeight = 675;
+float musicVolume = 1.0f;
+float masterVolume = 1.0f;
 
 // Required variables to manage screen transitions (fade-in, fade-out)
 static float transAlpha = 0.0f;
@@ -72,15 +74,16 @@ int main()
 	worldTexture = LoadTexture("assets/DangerClose.png");
 	SetTextureFilter(worldTexture, TEXTURE_FILTER_ANISOTROPIC_16X);
 
-//    SetMusicVolume(music, 1.0f);
-//    PlayMusicStream(music);
+    SetMusicVolume(music, musicVolume);
+    PlayMusicStream(music);
 
-    currentScreen = GAMEPLAY;
+    currentScreen = LOGO;
 
     switch (currentScreen)
     {
         case LOGO: InitLogoScreen(); break;
         case TITLE: InitTitleScreen(); break;
+        case OPTIONS: InitOptionsScreen(); break;
         case GAMEPLAY: InitGameplayScreen(); break;
         case ENDING: InitEndingScreen(); break;
         default: break;
@@ -102,6 +105,7 @@ int main()
     {
         case LOGO: UnloadLogoScreen(); break;
         case TITLE: UnloadTitleScreen(); break;
+        case OPTIONS: UnloadOptionsScreen(); break;
         case GAMEPLAY: UnloadGameplayScreen(); break;
         case ENDING: UnloadEndingScreen(); break;
         default: break;
@@ -133,6 +137,7 @@ static void ChangeToScreen(int screen)
     {
         case LOGO: UnloadLogoScreen(); break;
         case TITLE: UnloadTitleScreen(); break;
+        case OPTIONS: UnloadOptionsScreen(); break;
         case GAMEPLAY: UnloadGameplayScreen(); break;
         case ENDING: UnloadEndingScreen(); break;
         default: break;
@@ -143,6 +148,7 @@ static void ChangeToScreen(int screen)
     {
         case LOGO: InitLogoScreen(); break;
         case TITLE: InitTitleScreen(); break;
+        case OPTIONS: InitOptionsScreen(); break;
         case GAMEPLAY: InitGameplayScreen(); break;
         case ENDING: InitEndingScreen(); break;
         default: break;
@@ -190,6 +196,7 @@ static void UpdateTransition(void)
             {
                 case LOGO: InitLogoScreen(); break;
                 case TITLE: InitTitleScreen(); break;
+                case OPTIONS: InitOptionsScreen(); break;
                 case GAMEPLAY: InitGameplayScreen(); break;
                 case ENDING: InitEndingScreen(); break;
                 default: break;

@@ -24,6 +24,7 @@
 **********************************************************************************************/
 
 #include "raylib.h"
+#include "extras/raygui.h"
 #include "screens.h"
 
 //----------------------------------------------------------------------------------
@@ -50,10 +51,10 @@ void UpdateTitleScreen(void)
     // TODO: Update TITLE screen variables here!
 
     // Press enter or tap to change to GAMEPLAY screen
-    if (IsKeyPressed(KEY_ENTER) || IsGestureDetected(GESTURE_TAP))
+//    if (IsKeyPressed(KEY_ENTER) || IsGestureDetected(GESTURE_TAP))
     {
         //finishScreen = 1;   // OPTIONS
-        finishScreen = 2;   // GAMEPLAY
+//        finishScreen = 2;   // GAMEPLAY
 //        PlaySound(fxCoin);
     }
 }
@@ -61,10 +62,24 @@ void UpdateTitleScreen(void)
 // Title Screen Draw logic
 void DrawTitleScreen(void)
 {
+    ClearBackground(RAYWHITE);
     // TODO: Draw TITLE screen here!
-    DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), GREEN);
+//    DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), GREEN);
 //    DrawTextEx(font, "TITLE SCREEN", (Vector2){ 20, 10 }, font.baseSize*3, 4, DARKGREEN);
-    DrawText("PRESS ENTER or TAP to JUMP to GAMEPLAY SCREEN", 120, 220, 20, DARKGREEN);
+//    DrawText("PRESS ENTER or TAP to JUMP to GAMEPLAY SCREEN", 120, 220, 20, DARKGREEN);
+
+    DrawText("DANGER CLOSE!", 30, 30, 50, BLACK);
+    // Draw base
+    DrawSprite(20, 7, (Vector2){500, 300}, (Vector2){32, 32}, 0);
+    // Draw turret
+    DrawSprite(19, 10, (Vector2){500, 300}, (Vector2){32, 38}, 0);
+
+    if (GuiButton((Rectangle){350, 350, 100, 25}, "Options"))
+        finishScreen = 1;
+    if (GuiButton((Rectangle){350, 380, 100, 25}, "Play"))
+        finishScreen = 2;
+//    if (GuiButton((Rectangle){350, 210, 100, 25}, "Quit"))
+//        finishScreen = 0;
 }
 
 // Title Screen Unload logic

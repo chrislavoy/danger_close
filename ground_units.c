@@ -26,17 +26,18 @@ void InitEnemies()
 
 	for (int i = 0; i < enemyUnits.capacity; ++i)
 	{
-		enemyUnits.units[i].origin = (Vector2){32, 32};
-		enemyUnits.units[i].position = (Vector2){GetRandomValue(-2999, 2999), GetRandomValue(-3000, -2000)};
-		enemyUnits.units[i].rectangle = (Rectangle) {0, 0, 64, 64};
-		enemyUnits.units[i].rotation = 0;
-		enemyUnits.units[i].color = WHITE;
-		enemyUnits.units[i].movementSpeed = 1;
-		enemyUnits.units[i].moveTo = (Vector2){enemyUnits.units[i].position.x, 3000};//Vector2Add(enemyUnits.units[i].position, (Vector2){0, 1000});
-		enemyUnits.units[i].active = true;
-		enemyUnits.units[i].team = ENEMY_TEAM;
-        enemyUnits.units[i].target = -1;
-        enemyUnits.units[i].shotTimer = 0;
+        Unit* unit = &enemyUnits.units[i];
+        unit->origin = (Vector2){32, 32};
+        unit->position = (Vector2){GetRandomValue(-2999, 2999), GetRandomValue(-3000, -2000)};
+        unit->rectangle = (Rectangle) {0, 0, 64, 64};
+        unit->rotation = 0;
+        unit->color = WHITE;
+        unit->movementSpeed = 3;
+        unit->moveTo = (Vector2){unit->position.x, 3000};//Vector2Add(enemyUnits.units[i].position, (Vector2){0, 1000});
+        unit->active = true;
+        unit->team = ENEMY_TEAM;
+        unit->target = -1;
+        unit->shotTimer = 0;
 	}
 }
 
@@ -46,17 +47,18 @@ void InitFriendlies()
 
 	for (int i = 0; i < friendlyUnits.capacity; ++i)
 	{
-		friendlyUnits.units[i].origin = (Vector2){32, 32};
-		friendlyUnits.units[i].position = (Vector2){GetRandomValue(-2999, 2999), GetRandomValue(3000, 2000)};
-		friendlyUnits.units[i].rectangle = (Rectangle) {0, 0, 64, 64};
-		friendlyUnits.units[i].rotation = 0;
-		friendlyUnits.units[i].color = WHITE;
-		friendlyUnits.units[i].movementSpeed = 1;
-		friendlyUnits.units[i].moveTo = (Vector2){friendlyUnits.units[i].position.x, -3000};//Vector2Add(friendlyUnits.units[i].position, (Vector2){0, -1000});
-		friendlyUnits.units[i].active = true;
-		friendlyUnits.units[i].team = FRIENDLY_TEAM;
-        friendlyUnits.units[i].target = -1;
-        friendlyUnits.units[i].shotTimer = 0;
+        Unit* unit = &friendlyUnits.units[i];
+        unit->origin = (Vector2){32, 32};
+        unit->position = (Vector2){GetRandomValue(-2999, 2999), GetRandomValue(3000, 2000)};
+        unit->rectangle = (Rectangle) {0, 0, 64, 64};
+        unit->rotation = 0;
+        unit->color = WHITE;
+        unit->movementSpeed = 3;
+        unit->moveTo = (Vector2){unit->position.x, -3000};//Vector2Add(friendlyUnits.units[i].position, (Vector2){0, -1000});
+        unit->active = true;
+        unit->team = FRIENDLY_TEAM;
+        unit->target = -1;
+        unit->shotTimer = 0;
 	}
 }
 
@@ -97,7 +99,6 @@ void UpdateUnits()
                 {
                     if (unit->shotTimer == 0)
                     {
-                        PlaySoundMulti(fxUnitShoot);
                         AttackUnit(FRIENDLY_TEAM, unit->target);
                         unit->shotTimer = SHOT_TIMER_MAX;
                     }
@@ -146,7 +147,6 @@ void UpdateUnits()
                 {
                     if (unit->shotTimer == 0)
                     {
-                        PlaySoundMulti(fxUnitShoot);
                         AttackUnit(ENEMY_TEAM, unit->target);
                         unit->shotTimer = SHOT_TIMER_MAX;
                     }
@@ -201,6 +201,8 @@ int DamageUnitsInsideArea(Vector2 position, float radius, short team)
 
 void AttackUnit(int team, int index)
 {
+    SetSoundVolume(fxUnitShoot, 0.25f);
+    PlaySoundMulti(fxUnitShoot);
     Units* unitList = (team == FRIENDLY_TEAM) ? &friendlyUnits : &enemyUnits;
     if((float)GetRandomValue(0, 100) / 100.0f > (1.0f - HIT_CHANCE))
     {

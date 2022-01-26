@@ -47,6 +47,8 @@ extern Sound fxImpact;
 extern Sound fxUnitShoot;
 extern Texture2D spriteSheet;
 extern Texture2D worldTexture;
+extern float masterVolume;
+extern float musicVolume;
 
 #ifdef __cplusplus
 extern "C" {            // Prevents name mangling of functions

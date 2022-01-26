@@ -24,6 +24,7 @@
 **********************************************************************************************/
 
 #include "raylib.h"
+#include "extras/raygui.h"
 #include "screens.h"
 
 //----------------------------------------------------------------------------------
@@ -54,6 +55,13 @@ void UpdateOptionsScreen(void)
 void DrawOptionsScreen(void)
 {
     // TODO: Draw OPTIONS screen here!
+
+    masterVolume = GuiSlider((Rectangle){350, 200, 200, 25}, "Master Volume", ((void *) 0), masterVolume, 0, 1.0f);
+    musicVolume = GuiSlider((Rectangle){350, 240, 200, 25}, "Music Volume", ((void *) 0), musicVolume, 0, 1.0f);
+    if (GuiButton((Rectangle){350, 270, 200, 25}, "Back")) finishScreen = 1;
+
+    SetMasterVolume(masterVolume);
+    SetMusicVolume(music, musicVolume);
 }
 
 // Options Screen Unload logic

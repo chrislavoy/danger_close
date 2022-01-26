@@ -11,7 +11,7 @@
 #define MAX_FRIENDLIES 100
 #define FRIENDLY_TEAM 0
 #define ENEMY_TEAM 1
-#define HIT_CHANCE 0.15f
+#define HIT_CHANCE 0.05f
 #define DETECTION_RANGE 400
 #define SHOT_TIMER_MAX 3.0f
 
