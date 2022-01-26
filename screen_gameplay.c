@@ -158,6 +158,15 @@ void DrawGameplayScreen(void)
 	                DrawRectangle(enemyUnits.units[i].position.x, enemyUnits.units[i].position.y, 50, 50, RED);
 	            }
 	        }
+
+            // Draw Friendlies
+            for (int i = 0; i < friendlyUnits.capacity; ++i)
+            {
+                if (friendlyUnits.units[i].active)
+                {
+                    DrawRectangle(friendlyUnits.units[i].position.x, friendlyUnits.units[i].position.y, 50, 50, BLUE);
+                }
+            }
         EndMode2D();
     EndTextureMode();
 

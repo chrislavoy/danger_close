@@ -19,14 +19,15 @@ typedef struct Unit {
     float rotation;
     Color color;
     bool active;
-    Vector2 targetPos;
+    Vector2 moveTo;
     float movementSpeed;
 	short team;
-} Enemy;
+    int target;
+} Unit;
 
 typedef struct Units {
     int capacity;
-    Enemy units[MAX_ENEMIES];
+    Unit units[MAX_ENEMIES];
 } Units;
 
 extern Units enemyUnits;

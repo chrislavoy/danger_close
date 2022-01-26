@@ -7,9 +7,14 @@
 
 void InitFriendlies(void);
 void InitEnemies(void);
+void AttackUnit(int, int);
+int EnemyUnitInRange(int, Vector2, float);
 
 // Also declared in screens.h, implemented in screen_gameplay.c
 void DrawSprite(int offsetX, int offsetY, Vector2 position, Vector2 origin, float rotation);
+
+#define HIT_CHANCE 0.15f
+#define DETECTION_RANGE 400
 
 void InitUnits(void)
 {
@@ -30,9 +35,10 @@ void InitEnemies()
 		enemyUnits.units[i].rotation = 0;
 		enemyUnits.units[i].color = WHITE;
 		enemyUnits.units[i].movementSpeed = 1;
-		enemyUnits.units[i].targetPos = Vector2Add(enemyUnits.units[i].position, (Vector2){0, 1000});
+		enemyUnits.units[i].moveTo = (Vector2){enemyUnits.units[i].position.x, 3000};//Vector2Add(enemyUnits.units[i].position, (Vector2){0, 1000});
 		enemyUnits.units[i].active = true;
 		enemyUnits.units[i].team = ENEMY_TEAM;
+        enemyUnits.units[i].target = -1;
 	}
 }
 
@@ -48,9 +54,10 @@ void InitFriendlies()
 		friendlyUnits.units[i].rotation = 0;
 		friendlyUnits.units[i].color = WHITE;
 		friendlyUnits.units[i].movementSpeed = 1;
-		friendlyUnits.units[i].targetPos = Vector2Add(friendlyUnits.units[i].position, (Vector2){0, 1000});
+		friendlyUnits.units[i].moveTo = (Vector2){friendlyUnits.units[i].position.x, -3000};//Vector2Add(friendlyUnits.units[i].position, (Vector2){0, -1000});
 		friendlyUnits.units[i].active = true;
 		friendlyUnits.units[i].team = FRIENDLY_TEAM;
+        friendlyUnits.units[i].target = -1;
 	}
 }
 
@@ -58,27 +65,70 @@ void UpdateUnits()
 {
     for (int i = 0; i < enemyUnits.capacity; ++i)
     {
-        if (enemyUnits.units[i].active)
+        Unit* unit = &enemyUnits.units[i];
+        if (unit->active)
         {
-            if (Vector2Distance(enemyUnits.units[i].position, enemyUnits.units[i].targetPos) > 400)
+            if (unit->target == -1)
             {
-	            enemyUnits.units[i].position = Vector2MoveTowards(enemyUnits.units[i].position, enemyUnits.units[i].targetPos, enemyUnits.units[i].movementSpeed);
-	            enemyUnits.units[i].rotation = Vector2Angle(enemyUnits.units[i].position, enemyUnits.units[i].targetPos);
-	            enemyUnits.units[i].rectangle = (Rectangle){enemyUnits.units[i].position.x, enemyUnits.units[i].position.y, 64, 64};
+                int index = EnemyUnitInRange(FRIENDLY_TEAM, unit->position, DETECTION_RANGE);
+                if (index > -1)
+                {
+                    unit->target = index;
+                }
+
+                if (Vector2Distance(unit->position, unit->moveTo) > 400)
+                {
+                    unit->position = Vector2MoveTowards(unit->position, unit->moveTo, unit->movementSpeed);
+                    unit->rotation = Vector2Angle(unit->position, unit->moveTo);
+                    unit->rectangle = (Rectangle){unit->position.x, unit->position.y, 64, 64};
+                }
+            }
+            else
+            {
+                if (friendlyUnits.units[unit->target].active)
+                {
+                    AttackUnit(FRIENDLY_TEAM, unit->target);
+                }
+                else
+                {
+                    unit->target = -1;
+                }
             }
         }
     }
 
 	for (int i = 0; i < friendlyUnits.capacity; ++i)
 	{
-		if (friendlyUnits.units[i].active)
+        Unit* unit = &friendlyUnits.units[i];
+		if (unit->active)
 		{
-			if (Vector2Distance(friendlyUnits.units[i].position, friendlyUnits.units[i].targetPos) > 400)
-			{
-				friendlyUnits.units[i].position = Vector2MoveTowards(friendlyUnits.units[i].position, friendlyUnits.units[i].targetPos, friendlyUnits.units[i].movementSpeed);
-				friendlyUnits.units[i].rotation = Vector2Angle(friendlyUnits.units[i].position, friendlyUnits.units[i].targetPos);
-				friendlyUnits.units[i].rectangle = (Rectangle){friendlyUnits.units[i].position.x, friendlyUnits.units[i].position.y, 64, 64};
-			}
+            if (unit->target == -1)
+            {
+
+                int index = EnemyUnitInRange(ENEMY_TEAM, unit->position, DETECTION_RANGE);
+                if (index > -1)
+                {
+                    unit->target = index;
+                }
+
+                if (Vector2Distance(unit->position, unit->moveTo) > 400)
+                {
+                    unit->position = Vector2MoveTowards(unit->position, unit->moveTo, unit->movementSpeed);
+                    unit->rotation = Vector2Angle(unit->position, unit->moveTo);
+                    unit->rectangle = (Rectangle){unit->position.x, unit->position.y, 64, 64};
+                }
+            }
+            else
+            {
+                if (enemyUnits.units[unit->target].active)
+                {
+                    AttackUnit(ENEMY_TEAM, unit->target);
+                }
+                else
+                {
+                    unit->target = -1;
+                }
+            }
 		}
 	}
 }
@@ -120,4 +170,27 @@ int DamageUnitsInsideArea(Vector2 position, float radius, short team)
 	}
 
 	return hits;
+}
+
+void AttackUnit(int team, int index)
+{
+    Units* unitList = (team == FRIENDLY_TEAM) ? &friendlyUnits : &enemyUnits;
+    if((float)GetRandomValue(0, 100) / 100.0f > (1.0f - HIT_CHANCE))
+    {
+        unitList->units[index].active = false;
+    }
+}
+
+int EnemyUnitInRange(int team, Vector2 position, float range)
+{
+    Units* unitList = (team == FRIENDLY_TEAM) ? &friendlyUnits : &enemyUnits;
+    for (int i = 0; i < unitList->capacity; ++i)
+    {
+        if (unitList->units[i].active && Vector2Distance(unitList->units[i].position, position) < range)
+        {
+            return i;
+        }
+    }
+
+    return -1;
 }
