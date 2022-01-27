@@ -25,12 +25,15 @@
 
 #include "raylib.h"
 #include "screens.h"
+#include "extras/raygui.h"
 
 //----------------------------------------------------------------------------------
 // Module Variables Definition (local)
 //----------------------------------------------------------------------------------
 static int framesCounter = 0;
 static int finishScreen = 0;
+char* endMessage;
+const char* scoreMessage;
 
 //----------------------------------------------------------------------------------
 // Ending Screen Functions Definition
@@ -42,28 +45,50 @@ void InitEndingScreen(void)
     // TODO: Initialize ENDING screen variables here!
     framesCounter = 0;
     finishScreen = 0;
+
+    switch (endCondition) {
+        case WIN:
+            endMessage = "You win!";
+            break;
+        case PYRRHIC_WIN:
+            endMessage = "You win! But at what cost?";
+            break;
+        case LOSE:
+            endMessage = "You lost! Try again?";
+            break;
+        default:
+            endMessage = "End condition not set properly!";
+    }
+
+    scoreMessage = TextFormat("Score: %d", score);
 }
 
 // Ending Screen Update logic
 void UpdateEndingScreen(void)
 {
     // TODO: Update ENDING screen variables here!
-
-    // Press enter or tap to return to TITLE screen
-    if (IsKeyPressed(KEY_ENTER) || IsGestureDetected(GESTURE_TAP))
-    {
-        finishScreen = 1;
-//        PlaySound(fxCoin);
-    }
 }
 
 // Ending Screen Draw logic
 void DrawEndingScreen(void)
 {
     // TODO: Draw ENDING screen here!
-    DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), BLUE);
-//    DrawTextEx(font, "ENDING SCREEN", (Vector2){ 20, 10 }, font.baseSize*3, 4, DARKBLUE);
-    DrawText("PRESS ENTER or TAP to RETURN to TITLE SCREEN", 120, 220, 20, DARKBLUE);
+    ClearBackground(BLACK);
+
+    int screenWidth = GetScreenWidth();
+
+    DrawText(endMessage, screenWidth/2 - (TextLength(endMessage)*8), 100, 30, WHITE);
+    DrawText(scoreMessage, screenWidth/2 - (TextLength(scoreMessage)*8), 200, 30, WHITE);
+
+    if (GuiButton((Rectangle){screenWidth/2 - 50, 400, 100, 50}, "Retry"))
+    {
+        finishScreen = 2;
+    }
+
+    if (GuiButton((Rectangle){screenWidth/2 - 50, 510, 100, 50}, "Menu"))
+    {
+        finishScreen = 1;
+    }
 }
 
 // Ending Screen Unload logic

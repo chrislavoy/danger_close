@@ -21,6 +21,7 @@ typedef struct Player {
     float fireRange;
     float reloadTimer;
     float health;
+    bool alive;
 } Player;
 
 extern Player player;

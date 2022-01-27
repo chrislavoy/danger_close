@@ -101,6 +101,11 @@ void UpdateUnits()
                     unit->target = index;
                 }
 
+                if (Vector2Distance(unit->position, player.position) < DETECTION_RANGE)
+                {
+                    unit->target = -2;
+                }
+
                 if (Vector2Distance(unit->position, unit->moveTo) > 100)
                 {
                     unit->position = Vector2MoveTowards(unit->position, unit->moveTo, unit->movementSpeed);
@@ -110,6 +115,14 @@ void UpdateUnits()
                 else
                 {
                     GetNextObjective(unit);
+                }
+            }
+            else if (unit->target == -2)
+            {
+                if (unit->shotTimer == 0)
+                {
+                    AttackPlayer();
+                    unit->shotTimer = SHOT_TIMER_MAX;
                 }
             }
             else
@@ -251,7 +264,18 @@ int EnemyUnitInRange(int team, Vector2 position, float range)
 
 void AttackPlayer()
 {
+    SetSoundVolume(fxUnitShoot, 0.25f);
+    PlaySoundMulti(fxUnitShoot);
+//    Units* unitList = (team == FRIENDLY_TEAM) ? &friendlyUnits : &enemyUnits;
+//    if((float)GetRandomValue(0, 100) / 100.0f > (1.0f - HIT_CHANCE))
+//    {
+//        unitList->units[index].active = false;
+//    }
 
+    if((float)GetRandomValue(0, 100) / 100.0f > (1.0f - HIT_CHANCE))
+    {
+        player.health -= 1;
+    }
 }
 
 void GetNextObjective(Unit* unit)
@@ -260,4 +284,23 @@ void GetNextObjective(Unit* unit)
         unit->moveTo = enemyTargetPos1b;
     else if (Vector2Distance(unit->moveTo, enemyTargetPos1b) < 100)
         unit->moveTo = enemyTargetPos2;
+}
+
+void ResetEnemies()
+{
+    InitEnemies();
+}
+
+void ResetFriendlies()
+{
+    TraceLog(LOG_INFO, "Resetting Friendly Units");
+    for (int i = 0; i < friendlyUnits.capacity; ++i)
+    {
+        Unit* unit = &friendlyUnits.units[i];
+        if (!unit->active)
+        {
+            unit->active = true;
+            unit->position = unit->moveTo;
+        }
+    }
 }

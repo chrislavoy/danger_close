@@ -30,12 +30,14 @@ Sound fxImpact = { 0 };
 Sound fxUnitShoot = { 0 };
 Texture2D spriteSheet;
 Texture2D worldTexture;
+EndCondition endCondition;
 
 // Global Variables Definition
 int screenWidth = 900;
 int screenHeight = 675;
 float musicVolume = 1.0f;
 float masterVolume = 1.0f;
+int score = 0;
 
 // Required variables to manage screen transitions (fade-in, fade-out)
 static float transAlpha = 0.0f;
@@ -275,6 +277,7 @@ static void UpdateDrawFrame(void)
                 UpdateEndingScreen();
 
                 if (FinishEndingScreen() == 1) TransitionToScreen(TITLE);
+                else if (FinishEndingScreen() == 2) TransitionToScreen(GAMEPLAY);
 
             } break;
             default: break;

@@ -32,7 +32,7 @@
 #include "ground_units.h"
 
 #define NULL ((void *)0)
-#define RELOAD_TIME 3.0f
+#define RELOAD_TIME 2.0f
 #define MAX_ROTATION 45.0f
 
 //----------------------------------------------------------------------------------
@@ -50,7 +50,6 @@ Camera2D worldCamera;
 Camera2D mapCamera;
 RenderTexture mainRenderTexture;
 RenderTexture2D sideRenderTexture;
-//Shader shader;
 Player player;
 Ammo ammo;
 Units enemyUnits;
@@ -61,24 +60,24 @@ int guiWidth = 250;
 char feedbackMessage[50];
 bool showMessage = false;
 Rectangle radarRect = (Rectangle){776, 117, 230, 230};
-
-bool wave1 = false;
-
+int wave = 0;
 
 //----------------------------------------------------------------------------------
 // Gameplay Screen Functions Definition
 //----------------------------------------------------------------------------------
 void DrawGui();
-float Wrap(float, float, float);
 Vector2 RotationToVector(float);
 bool MouseOverRadar();
 bool PointInsideRect(Vector2, Rectangle);
 Vector2 VirtualMouseToWorldPos();
+int EnemiesRemaining();
+int FriendliesRemaining();
 
 // Gameplay Screen Initialization logic
 void InitGameplayScreen(void)
 {
     // TODO: Initialize GAMEPLAY screen variables here!
+    score = 0;
     framesCounter = 0;
     finishScreen = 0;
     InitAmmo();
@@ -100,6 +99,9 @@ void InitGameplayScreen(void)
     mapCamera.offset = (Vector2) {sideRenderTexture.texture.width/2, sideRenderTexture.texture.height/2};
     mapCamera.rotation = 0;
     mapCamera.zoom = 0.1f;
+
+    wave++;
+    SetMessage(TextFormat("Wave: %d", wave));
 }
 
 // Gameplay Screen Update logic
@@ -112,13 +114,13 @@ void UpdateGameplayScreen(void)
     if (IsKeyPressed(KEY_BACKSPACE))
     {
         finishScreen = 1;
+        endCondition = LOSE;
     }
 
     if (MouseOverRadar())
     {
         if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
         {
-//            TraceLog(LOG_INFO, TextFormat("radar clicked %f, %f", GetMousePosition().x, GetMousePosition().y));
             worldCamera.target = VirtualMouseToWorldPos();
         }
     }
@@ -138,6 +140,36 @@ void UpdateGameplayScreen(void)
             showMessage = false;
         }
     }
+
+    if (EnemiesRemaining() == 0)
+    {
+        if (wave < 3)
+        {
+            ResetEnemies();
+            ResetFriendlies();
+            wave++;
+            SetMessage(TextFormat("Wave: %d", wave));
+        }
+        else
+        {
+            if (FriendliesRemaining() < friendlyUnits.capacity/4)
+            {
+                endCondition = PYRRHIC_WIN;
+            }
+            else
+            {
+                endCondition = WIN;
+            }
+
+            finishScreen = 1;
+        }
+    }
+
+    if (!player.alive)
+    {
+        endCondition = LOSE;
+        finishScreen = 1;
+    }
 }
 
 // Gameplay Screen Draw logic
@@ -147,16 +179,20 @@ void DrawGameplayScreen(void)
     BeginTextureMode(sideRenderTexture);
         BeginMode2D(mapCamera);
 			ClearBackground(RAYWHITE);
+
 			// Draw world
 			DrawTextureEx(worldTexture, (Vector2){-3200, -3200}, 0, 1, WHITE);
+
 	        // Draw player
 	        DrawRectangle(player.position.x - 25, player.position.y - 25, 50, 50, BLUE);
+
 	        // Draw range
-//	        DrawCircle(player.position.x, player.position.y, player.fireRange, ColorAlpha(RED, 0.25f));
             DrawCircleSector(player.position, player.fireRange, 180-MAX_ROTATION, 180+MAX_ROTATION, 0, Fade(MAROON, 0.4f));
+
 	        // Draw player rotation
 	        Vector2 rotVec = Vector2Add(Vector2Scale(RotationToVector(player.rotation), 250), player.position);
 	        DrawLineEx(player.position, rotVec, 50, BLUE);
+
 	        // Draw shells
 	        for (int i = 0; i < ammo.capacity; ++i)
 	        {
@@ -166,6 +202,7 @@ void DrawGameplayScreen(void)
 	                DrawRectangle(shell.position.x, shell.position.y, 50, 50, BLACK);
 	            }
 	        }
+
 	        // Draw enemyUnits
 	        for (int i = 0; i < enemyUnits.capacity; ++i)
 	        {
@@ -209,6 +246,7 @@ void DrawGameplayScreen(void)
 		WHITE);
     DrawGui();
     DrawMessage();
+    DrawText(TextFormat("Score: %d", score), 10, 10, 20, BLACK);
 }
 
 // Gameplay Screen Unload logic
@@ -227,7 +265,7 @@ int FinishGameplayScreen(void)
 
 void Shoot()
 {
-    if (player.reloadTimer == 0/* && ammo.count > 0*/)
+    if (player.reloadTimer == 0)
     {
         variance = (Vector2){(float)GetRandomValue(-5, 5)/100, (float)GetRandomValue(-5, 5)/100};
 
@@ -244,7 +282,6 @@ void Shoot()
         ammo.shellIterator++;
         if (ammo.shellIterator == ammo.capacity)
             ammo.shellIterator = 0;
-//        ammo.count--;
 
         player.reloadTimer = RELOAD_TIME;
     }
@@ -262,17 +299,13 @@ void Explode(int shellIndex)
 
     if (friendliesHit > 0)
         SetMessage("Friendly fire!");
-    else if (enemiesHit > 0)
+    else if (enemiesHit > 5)
 		SetMessage("Good hit!");
+
+    score += (enemiesHit * 100) - (friendliesHit * 200);
 }
 
-//void Reload()
-//{
-//    ammo.count = ammo.capacity;
-//    ammo.shellIterator = 0;
-//}
-
-void SetMessage(char* message)
+void SetMessage(const char* message)
 {
     if (feedbackTimer <= 0)
     {
@@ -308,25 +341,6 @@ void DrawGui()
         180,
         WHITE);
 
-//    // Rotation controls
-//    if (GuiButton((Rectangle){670, 250, 25, 25}, "<<"))
-//    {
-//        ChangeRotation(-60);
-//    }
-//    if (GuiButton((Rectangle){700, 250, 25, 25}, "<"))
-//    {
-//        ChangeRotation(-10);
-//    }
-//    DrawText(TextFormat("%d", (int)player.targetRotation), 740, 253, 20, BLACK);
-//    if (GuiButton((Rectangle){790, 250, 25, 25}, ">"))
-//    {
-//        ChangeRotation(10);
-//    }
-//    if (GuiButton((Rectangle){820, 250, 25, 25}, ">>"))
-//    {
-//        ChangeRotation(60);
-//    }
-
     // Range controls
     player.fireRange = GuiSlider((Rectangle){705, 250, 150, 25}, "Range", TextFormat("%.2f", player.fireRange), player.fireRange, MIN_FIRE_RANGE, MAX_FIRE_RANGE);
 
@@ -342,14 +356,8 @@ void DrawGui()
         Shoot();
     }
 
-    // Reload button
-//    if (GuiButton((Rectangle){690, 400, 175, 25}, "Reload"))
-//    {
-//        Reload();
-//    }
-
-    // Ammo count
-//    GuiLabel((Rectangle){690, 450, 175, 25}, TextFormat("%d / %d", ammo.count, ammo.capacity));
+    // Player health bar
+    GuiProgressBar((Rectangle){690, 380, 175, 15}, NULL, NULL, player.health, 0, 100);
 }
 
 void DrawSprite(int offsetX, int offsetY, Vector2 position, Vector2 origin, float rotation)
@@ -382,6 +390,32 @@ Vector2 VirtualMouseToWorldPos()
                     (mousePos.x - radarRect.x) / radarRect.width  * 6000,
                     (mousePos.y - radarRect.y) / radarRect.height * 6000
             };
-//    TraceLog(LOG_INFO, TextFormat("(%f, %f)", result.x, result.y));
-//    return result;
+}
+
+int EnemiesRemaining()
+{
+    int count = 0;
+
+    for (int i = 0; i < enemyUnits.capacity; ++i)
+    {
+        if (enemyUnits.units[i].active)
+            count++;
+    }
+
+    return count;
+}
+
+int FriendliesRemaining()
+{
+    int count = 0;
+
+    for (int i = 0; i < friendlyUnits.capacity; ++i)
+    {
+        if (friendlyUnits.units[i].active)
+        {
+            count++;
+        }
+    }
+
+    return count;
 }

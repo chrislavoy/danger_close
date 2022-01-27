@@ -31,6 +31,7 @@
 //----------------------------------------------------------------------------------
 
 typedef enum GameScreen { LOGO = 0, TITLE, OPTIONS, GAMEPLAY, ENDING } GameScreen;
+typedef enum EndCondition { WIN = 0, PYRRHIC_WIN, LOSE } EndCondition;
 
 typedef struct Animation {
     float lifetime;
@@ -49,6 +50,8 @@ extern Texture2D spriteSheet;
 extern Texture2D worldTexture;
 extern float masterVolume;
 extern float musicVolume;
+extern EndCondition endCondition;
+extern int score;
 
 #ifdef __cplusplus
 extern "C" {            // Prevents name mangling of functions
@@ -92,7 +95,7 @@ int FinishGameplayScreen(void);
 void Shoot();
 void Explode(int);
 void Reload();
-void SetMessage(char*);
+void SetMessage(const char*);
 void DrawMessage();
 
 //----------------------------------------------------------------------------------

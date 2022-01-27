@@ -6,6 +6,7 @@
 #define DANGER_CLOSE_GROUND_UNITS_H
 
 #include "raylib.h"
+#include "player.h"
 
 #define MAX_ENEMIES 100
 #define MAX_FRIENDLIES 100
@@ -37,8 +38,11 @@ typedef struct Units {
 extern Units enemyUnits;
 extern Units friendlyUnits;
 extern Sound fxUnitShoot;
+extern Player player;
 
 void InitUnits(void);
+void ResetEnemies(void);
+void ResetFriendlies(void);
 void UpdateUnits();
 void DrawUnits();
 int DamageUnitsInsideArea(Vector2, float, short);

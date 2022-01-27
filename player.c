@@ -27,6 +27,7 @@ void InitPlayer(void)
     player.fireRange = MAX_FIRE_RANGE;
     player.reloadTimer = 0;
     player.health = 100.0f;
+    player.alive = true;
 }
 
 void UpdatePlayer(float dt)
@@ -63,14 +64,21 @@ void UpdatePlayer(float dt)
 
     if (player.reloadTimer < 0)
         player.reloadTimer = 0;
+
+    if (player.health <= 0)
+        player.alive = false;
+
 }
 
 void DrawPlayer()
 {
-    // Draw base
-    DrawSprite(20, 7, Vector2Add(player.position, (Vector2){0, 6}), player.origin, 0);
-    // Draw turret
-    DrawSprite(19, 10, player.position, player.origin, player.rotation);
+    if (player.alive)
+    {
+        // Draw base
+        DrawSprite(20, 7, Vector2Add(player.position, (Vector2){0, 6}), player.origin, 0);
+        // Draw turret
+        DrawSprite(19, 10, player.position, player.origin, player.rotation);
+    }
 }
 
 //void ChangeRotation(float amount)
