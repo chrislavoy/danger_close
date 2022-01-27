@@ -91,7 +91,7 @@ void InitGameplayScreen(void)
     sideRenderTexture = LoadRenderTexture(600, 600);
     SetTextureFilter(sideRenderTexture.texture, TEXTURE_FILTER_ANISOTROPIC_16X);
 
-    mapCamera.target = player.position;
+    mapCamera.target = Vector2Zero();
     mapCamera.offset = (Vector2) {sideRenderTexture.texture.width/2, sideRenderTexture.texture.height/2};
     mapCamera.rotation = 0;
     mapCamera.zoom = 0.1f;
@@ -184,7 +184,7 @@ void DrawGameplayScreen(void)
 
 	BeginTextureMode(mainRenderTexture);
 		BeginMode2D(worldCamera);
-			ClearBackground(RAYWHITE);
+			ClearBackground(BLACK);
 			DrawTextureEx(worldTexture, (Vector2){-3200, -3200}, 0, 1, WHITE);
 			DrawAmmo();
 			DrawPlayer();

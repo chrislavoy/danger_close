@@ -8,7 +8,7 @@
 #include "raylib.h"
 
 #define TURN_RATE 30.0f
-#define MAX_FIRE_RANGE 3000
+#define MAX_FIRE_RANGE 6000
 #define MIN_FIRE_RANGE 200
 
 typedef struct Player {
