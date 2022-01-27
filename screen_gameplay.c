@@ -31,7 +31,9 @@
 #include "ammo.h"
 #include "ground_units.h"
 
+#define NULL ((void *)0)
 #define RELOAD_TIME 3.0f
+#define MAX_ROTATION 45.0f
 
 //----------------------------------------------------------------------------------
 // Module Variables Definition (local)
@@ -59,6 +61,9 @@ int guiWidth = 250;
 char feedbackMessage[50];
 bool showMessage = false;
 Rectangle radarRect = (Rectangle){776, 117, 230, 230};
+
+bool wave1 = false;
+
 
 //----------------------------------------------------------------------------------
 // Gameplay Screen Functions Definition
@@ -147,10 +152,11 @@ void DrawGameplayScreen(void)
 	        // Draw player
 	        DrawRectangle(player.position.x - 25, player.position.y - 25, 50, 50, BLUE);
 	        // Draw range
-	        DrawCircle(player.position.x, player.position.y, player.fireRange, ColorAlpha(RED, 0.25f));
+//	        DrawCircle(player.position.x, player.position.y, player.fireRange, ColorAlpha(RED, 0.25f));
+            DrawCircleSector(player.position, player.fireRange, 180-MAX_ROTATION, 180+MAX_ROTATION, 0, Fade(MAROON, 0.4f));
 	        // Draw player rotation
 	        Vector2 rotVec = Vector2Add(Vector2Scale(RotationToVector(player.rotation), 250), player.position);
-	        DrawLineEx(player.position, rotVec, 25, BLUE);
+	        DrawLineEx(player.position, rotVec, 50, BLUE);
 	        // Draw shells
 	        for (int i = 0; i < ammo.capacity; ++i)
 	        {
@@ -178,7 +184,8 @@ void DrawGameplayScreen(void)
                 }
             }
 
-            DrawRectangleLinesEx((Rectangle){worldCamera.target.x - 900, worldCamera.target.y - 675, 1800, 1350}, 50, DARKGRAY);
+            // Draw camera borders
+            DrawRectangleLinesEx((Rectangle){worldCamera.target.x - 450, worldCamera.target.y - 450, 900, 900}, 50, DARKGRAY);
         EndMode2D();
     EndTextureMode();
 
@@ -220,7 +227,7 @@ int FinishGameplayScreen(void)
 
 void Shoot()
 {
-    if (player.reloadTimer == 0 && ammo.count > 0)
+    if (player.reloadTimer == 0/* && ammo.count > 0*/)
     {
         variance = (Vector2){(float)GetRandomValue(-5, 5)/100, (float)GetRandomValue(-5, 5)/100};
 
@@ -235,7 +242,9 @@ void Shoot()
         ammo.shells[ammo.shellIterator].velocity = Vector2Add(ammo.shells[ammo.shellIterator].velocity, variance);
 
         ammo.shellIterator++;
-        ammo.count--;
+        if (ammo.shellIterator == ammo.capacity)
+            ammo.shellIterator = 0;
+//        ammo.count--;
 
         player.reloadTimer = RELOAD_TIME;
     }
@@ -248,19 +257,20 @@ void Explode(int shellIndex)
     PlaySoundMulti(fxImpact);
     ammo.shells[shellIndex].active = false;
 
-    int enemiesHit = DamageUnitsInsideArea(ammo.shells[shellIndex].position, ammo.shells[shellIndex].blastRadius, ENEMY_TEAM);
+    int enemiesHit =    DamageUnitsInsideArea(ammo.shells[shellIndex].position, ammo.shells[shellIndex].blastRadius, ENEMY_TEAM);
+    int friendliesHit = DamageUnitsInsideArea(ammo.shells[shellIndex].position, ammo.shells[shellIndex].blastRadius, FRIENDLY_TEAM);
 
-	if (enemiesHit > 0)
-	{
-		SetMessage("Good hits!");
-	}
+    if (friendliesHit > 0)
+        SetMessage("Friendly fire!");
+    else if (enemiesHit > 0)
+		SetMessage("Good hit!");
 }
 
-void Reload()
-{
-    ammo.count = ammo.capacity;
-    ammo.shellIterator = 0;
-}
+//void Reload()
+//{
+//    ammo.count = ammo.capacity;
+//    ammo.shellIterator = 0;
+//}
 
 void SetMessage(char* message)
 {
@@ -276,7 +286,7 @@ void DrawMessage()
 {
     if (showMessage)
     {
-		int startY = 500;
+		int startY = 550;
 		int endY = GetScreenHeight() - startY - 5;
         DrawRectangleRec    ((Rectangle){5, startY, 640, endY}, WHITE);
         DrawRectangleLinesEx((Rectangle){5, startY, 640, endY}, 3, BLACK);
@@ -298,42 +308,48 @@ void DrawGui()
         180,
         WHITE);
 
-    // Rotation controls
-    if (GuiButton((Rectangle){670, 250, 25, 25}, "<<"))
-    {
-        ChangeRotation(-60);
-    }
-    if (GuiButton((Rectangle){700, 250, 25, 25}, "<"))
-    {
-        ChangeRotation(-10);
-    }
-    DrawText(TextFormat("%d", (int)player.targetRotation), 740, 253, 20, BLACK);
-    if (GuiButton((Rectangle){790, 250, 25, 25}, ">"))
-    {
-        ChangeRotation(10);
-    }
-    if (GuiButton((Rectangle){820, 250, 25, 25}, ">>"))
-    {
-        ChangeRotation(60);
-    }
+//    // Rotation controls
+//    if (GuiButton((Rectangle){670, 250, 25, 25}, "<<"))
+//    {
+//        ChangeRotation(-60);
+//    }
+//    if (GuiButton((Rectangle){700, 250, 25, 25}, "<"))
+//    {
+//        ChangeRotation(-10);
+//    }
+//    DrawText(TextFormat("%d", (int)player.targetRotation), 740, 253, 20, BLACK);
+//    if (GuiButton((Rectangle){790, 250, 25, 25}, ">"))
+//    {
+//        ChangeRotation(10);
+//    }
+//    if (GuiButton((Rectangle){820, 250, 25, 25}, ">>"))
+//    {
+//        ChangeRotation(60);
+//    }
 
     // Range controls
-    player.fireRange = GuiSlider((Rectangle){670, 300, 175, 25}, "Distance", TextFormat("%.2f", player.fireRange), player.fireRange, MIN_FIRE_RANGE, MAX_FIRE_RANGE);
+    player.fireRange = GuiSlider((Rectangle){705, 250, 150, 25}, "Range", TextFormat("%.2f", player.fireRange), player.fireRange, MIN_FIRE_RANGE, MAX_FIRE_RANGE);
+
+    // Rotation controls
+    player.targetRotation = GuiSlider((Rectangle){705, 280, 150, 25}, "Rotation", TextFormat("%.2f", player.targetRotation), player.targetRotation, -MAX_ROTATION, MAX_ROTATION);
+
+    // Reload bar
+    GuiProgressBar((Rectangle){690, 330, 175, 15}, NULL, NULL, RELOAD_TIME - player.reloadTimer, 0, RELOAD_TIME);
 
     // Fire button
-    if (GuiButton((Rectangle){670, 350, 175, 25}, "Fire"))
+    if (GuiButton((Rectangle){690, 350, 175, 25}, "Fire"))
     {
         Shoot();
     }
 
     // Reload button
-    if (GuiButton((Rectangle){670, 400, 175, 25}, "Reload"))
-    {
-        Reload();
-    }
+//    if (GuiButton((Rectangle){690, 400, 175, 25}, "Reload"))
+//    {
+//        Reload();
+//    }
 
     // Ammo count
-    GuiLabel((Rectangle){670, 450, 175, 25}, TextFormat("%d / %d", ammo.count, ammo.capacity));
+//    GuiLabel((Rectangle){690, 450, 175, 25}, TextFormat("%d / %d", ammo.count, ammo.capacity));
 }
 
 void DrawSprite(int offsetX, int offsetY, Vector2 position, Vector2 origin, float rotation)

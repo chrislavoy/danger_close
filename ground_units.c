@@ -9,12 +9,25 @@ void InitFriendlies(void);
 void InitEnemies(void);
 void AttackUnit(int, int);
 int EnemyUnitInRange(int, Vector2, float);
+void AttackPlayer();
+void GetNextObjective(Unit*);
 
 // Also declared in screens.h, implemented in screen_gameplay.c
 void DrawSprite(int offsetX, int offsetY, Vector2 position, Vector2 origin, float rotation);
 
+Vector2 enemyTargetPos1a = (Vector2){-2250, -150};
+Vector2 enemyTargetPos1b = (Vector2){0, -150};
+Vector2 enemyTargetPos1c = (Vector2){2250, -150};
+Vector2 enemyTargetPos2  = (Vector2){0, 2800};
+
+Vector2 targetList[3];
+
 void InitUnits(void)
 {
+    targetList[0] = enemyTargetPos1a;
+    targetList[1] = enemyTargetPos1b;
+    targetList[2] = enemyTargetPos1c;
+
     InitEnemies();
 
 	InitFriendlies();
@@ -26,14 +39,16 @@ void InitEnemies()
 
 	for (int i = 0; i < enemyUnits.capacity; ++i)
 	{
+        int target = GetRandomValue(0, 2);
+
         Unit* unit = &enemyUnits.units[i];
         unit->origin = (Vector2){32, 32};
-        unit->position = (Vector2){GetRandomValue(-2999, 2999), GetRandomValue(-3000, -2000)};
+        unit->position = (Vector2){GetRandomValue(-2999, 2999), GetRandomValue(-6000, -3500)};
         unit->rectangle = (Rectangle) {0, 0, 64, 64};
         unit->rotation = 180;
         unit->color = WHITE;
-        unit->movementSpeed = 3;
-        unit->moveTo = (Vector2){unit->position.x, 3000};//Vector2Add(enemyUnits.units[i].position, (Vector2){0, 1000});
+        unit->movementSpeed = 1;
+        unit->moveTo = targetList[target];  //(Vector2){unit->position.x, 3000};
         unit->active = true;
         unit->team = ENEMY_TEAM;
         unit->target = -1;
@@ -49,12 +64,12 @@ void InitFriendlies()
 	{
         Unit* unit = &friendlyUnits.units[i];
         unit->origin = (Vector2){32, 32};
-        unit->position = (Vector2){GetRandomValue(-2999, 2999), GetRandomValue(3000, 2000)};
+        unit->position = Vector2Add(targetList[i%3], (Vector2){GetRandomValue(-300, 300), GetRandomValue(-300, 300)});//(Vector2){GetRandomValue(-2999, 2999), GetRandomValue(3000, 2000)};
         unit->rectangle = (Rectangle) {0, 0, 64, 64};
-        unit->rotation = 0;
+        unit->rotation = 270;
         unit->color = WHITE;
-        unit->movementSpeed = 3;
-        unit->moveTo = (Vector2){unit->position.x, -3000};//Vector2Add(friendlyUnits.units[i].position, (Vector2){0, -1000});
+        unit->movementSpeed = 1;
+        unit->moveTo = Vector2Add(targetList[i%3], (Vector2){GetRandomValue(-300, 300), -300});//(Vector2){unit->position.x, -3000};
         unit->active = true;
         unit->team = FRIENDLY_TEAM;
         unit->target = -1;
@@ -86,11 +101,15 @@ void UpdateUnits()
                     unit->target = index;
                 }
 
-                if (Vector2Distance(unit->position, unit->moveTo) > 400)
+                if (Vector2Distance(unit->position, unit->moveTo) > 100)
                 {
                     unit->position = Vector2MoveTowards(unit->position, unit->moveTo, unit->movementSpeed);
                     unit->rotation = Vector2Angle(unit->position, unit->moveTo);
                     unit->rectangle = (Rectangle){unit->position.x, unit->position.y, 64, 64};
+                }
+                else
+                {
+                    GetNextObjective(unit);
                 }
             }
             else
@@ -134,7 +153,7 @@ void UpdateUnits()
                     unit->target = index;
                 }
 
-                if (Vector2Distance(unit->position, unit->moveTo) > 400)
+                if (Vector2Distance(unit->position, unit->moveTo) > 50)
                 {
                     unit->position = Vector2MoveTowards(unit->position, unit->moveTo, unit->movementSpeed);
                     unit->rotation = Vector2Angle(unit->position, unit->moveTo);
@@ -177,6 +196,12 @@ void DrawUnits()
 			DrawSprite(15, 10, friendlyUnits.units[i].position, friendlyUnits.units[i].origin, friendlyUnits.units[i].rotation);
 		}
 	}
+
+    // Debug draws for moveTo targets
+//    DrawCircleV(enemyTargetPos1a, 100, ColorAlpha(RED, 0.5f));
+//    DrawCircleV(enemyTargetPos1b, 100, ColorAlpha(RED, 0.5f));
+//    DrawCircleV(enemyTargetPos1c, 100, ColorAlpha(RED, 0.5f));
+//    DrawCircleV(enemyTargetPos2, 100, ColorAlpha(RED, 0.5f));
 }
 
 int DamageUnitsInsideArea(Vector2 position, float radius, short team)
@@ -222,4 +247,17 @@ int EnemyUnitInRange(int team, Vector2 position, float range)
     }
 
     return -1;
+}
+
+void AttackPlayer()
+{
+
+}
+
+void GetNextObjective(Unit* unit)
+{
+    if (Vector2Distance(unit->moveTo, enemyTargetPos1a) < 100 || Vector2Distance(unit->moveTo, enemyTargetPos1c) < 100)
+        unit->moveTo = enemyTargetPos1b;
+    else if (Vector2Distance(unit->moveTo, enemyTargetPos1b) < 100)
+        unit->moveTo = enemyTargetPos2;
 }

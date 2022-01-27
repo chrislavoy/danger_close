@@ -26,36 +26,37 @@ void InitPlayer(void)
     player.color = WHITE;
     player.fireRange = MAX_FIRE_RANGE;
     player.reloadTimer = 0;
+    player.health = 100.0f;
 }
 
 void UpdatePlayer(float dt)
 {
-    if (IsKeyDown(KEY_LEFT))
-    {
-        ChangeRotation(-TURN_RATE * dt);
-    }
-
-    if (IsKeyDown(KEY_RIGHT))
-    {
-        ChangeRotation(TURN_RATE * dt);
-    }
+//    if (IsKeyDown(KEY_LEFT))
+//    {
+//        ChangeRotation(-TURN_RATE * dt);
+//    }
+//
+//    if (IsKeyDown(KEY_RIGHT))
+//    {
+//        ChangeRotation(TURN_RATE * dt);
+//    }
 
     UpdateRotation(dt);
 
-    if (IsKeyDown(KEY_UP))
-    {
-        ChangeRange(200 * dt);
-    }
-
-    if (IsKeyDown(KEY_DOWN))
-    {
-        ChangeRange(-200 * dt);
-    }
-
-    if (IsKeyPressed(KEY_SPACE))
-    {
-        Shoot();
-    }
+//    if (IsKeyDown(KEY_UP))
+//    {
+//        ChangeRange(200 * dt);
+//    }
+//
+//    if (IsKeyDown(KEY_DOWN))
+//    {
+//        ChangeRange(-200 * dt);
+//    }
+//
+//    if (IsKeyPressed(KEY_SPACE))
+//    {
+//        Shoot();
+//    }
 
     if (player.reloadTimer > 0)
         player.reloadTimer -= dt;
@@ -72,21 +73,21 @@ void DrawPlayer()
     DrawSprite(19, 10, player.position, player.origin, player.rotation);
 }
 
-void ChangeRotation(float amount)
-{
-    player.targetRotation += amount;
-
-    player.targetRotation = Wrap(player.targetRotation, 0, 360);
-
-    // I don't love this, but this sets the rotation direction
-    // based on how far the player needs to rotate
-    float delta = player.rotation - player.targetRotation;
-    float absDelta = fabsf(delta);
-
-    if (delta < 0) CCW = false;
-    else CCW = true;
-    if (absDelta > 180) CCW = !CCW;
-}
+//void ChangeRotation(float amount)
+//{
+//    player.targetRotation += amount;
+//
+//    player.targetRotation = Wrap(player.targetRotation, 0, 360);
+//
+//    // I don't love this, but this sets the rotation direction
+//    // based on how far the player needs to rotate
+//    float delta = player.rotation - player.targetRotation;
+//    float absDelta = fabsf(delta);
+//
+//    if (delta < 0) CCW = false;
+//    else CCW = true;
+//    if (absDelta > 180) CCW = !CCW;
+//}
 
 void ChangeRange(float amount)
 {
@@ -97,21 +98,28 @@ void ChangeRange(float amount)
 
 void UpdateRotation(float dt)
 {
-    float delta = fabsf(player.rotation - player.targetRotation);
+//    player.rotation -= 270;
+//    player.targetRotation -= 270;
 
-    if (delta > 0.5f)
+    float delta = player.rotation - player.targetRotation;
+
+    if (fabsf(delta) > 0.5f)
     {
+        if (delta < 0) CCW = false;
+        else CCW = true;
+//        if (absDelta > 180) CCW = !CCW;
+
         if (CCW)
             player.rotation -= TURN_RATE * dt;
         else
             player.rotation += TURN_RATE * dt;
 
-        player.rotation = Wrap(player.rotation, 0, 360);
+//        player.rotation = Wrap(player.rotation, 0, 360);
     }
     else
     {
         player.rotation = player.targetRotation;
-        player.rotation = Wrap(player.rotation, 0, 360);
+//        player.rotation = Wrap(player.rotation, 0, 360);
     }
 }
 

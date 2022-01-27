@@ -12,7 +12,7 @@ void DrawSprite(int offsetX, int offsetY, Vector2 position, Vector2 origin, floa
 void InitAmmo(void)
 {
     ammo.capacity = MAX_SHELLS;
-    ammo.count = MAX_SHELLS;
+//    ammo.count = MAX_SHELLS;
 
     for (int i = 0; i < ammo.capacity; ++i)
     {

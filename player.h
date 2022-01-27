@@ -8,7 +8,7 @@
 #include "raylib.h"
 
 #define TURN_RATE 30.0f
-#define MAX_FIRE_RANGE 6000
+#define MAX_FIRE_RANGE 5000
 #define MIN_FIRE_RANGE 200
 
 typedef struct Player {
@@ -20,6 +20,7 @@ typedef struct Player {
     Color color;
     float fireRange;
     float reloadTimer;
+    float health;
 } Player;
 
 extern Player player;

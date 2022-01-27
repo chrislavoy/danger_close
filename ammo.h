@@ -7,7 +7,7 @@
 
 #include "raylib.h"
 
-#define MAX_SHELLS 20
+#define MAX_SHELLS 5
 
 typedef struct Shell {
     Vector2 origin;
@@ -22,7 +22,7 @@ typedef struct Shell {
 } Shell;
 
 typedef struct Ammo {
-    int count;
+//    int count;
     int capacity;
     int shellIterator;
     Shell shells[MAX_SHELLS];
