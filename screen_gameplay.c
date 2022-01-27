@@ -31,6 +31,8 @@
 #include "ammo.h"
 #include "ground_units.h"
 
+#define RELOAD_TIME 3.0f
+
 //----------------------------------------------------------------------------------
 // Module Variables Definition (local)
 //----------------------------------------------------------------------------------
@@ -51,15 +53,12 @@ Player player;
 Ammo ammo;
 Units enemyUnits;
 Units friendlyUnits;
-
 Vector2 fireTargetPos = (Vector2){0, 0};
 Vector2 variance = (Vector2){0, 0};
-
 int guiWidth = 250;
-
 char feedbackMessage[50];
-
 bool showMessage = false;
+Rectangle radarRect = (Rectangle){776, 117, 230, 230};
 
 //----------------------------------------------------------------------------------
 // Gameplay Screen Functions Definition
@@ -67,6 +66,9 @@ bool showMessage = false;
 void DrawGui();
 float Wrap(float, float, float);
 Vector2 RotationToVector(float);
+bool MouseOverRadar();
+bool PointInsideRect(Vector2, Rectangle);
+Vector2 VirtualMouseToWorldPos();
 
 // Gameplay Screen Initialization logic
 void InitGameplayScreen(void)
@@ -84,7 +86,7 @@ void InitGameplayScreen(void)
     worldCamera.target = player.position;
     worldCamera.offset = (Vector2){GetScreenWidth()/2 - guiWidth/2, GetScreenHeight()/2};
     worldCamera.rotation = 0;
-    worldCamera.zoom = 1;
+    worldCamera.zoom = 0.5f;
 
     sideRenderTexture = LoadRenderTexture(600, 600);
     SetTextureFilter(sideRenderTexture.texture, TEXTURE_FILTER_ANISOTROPIC_16X);
@@ -107,8 +109,16 @@ void UpdateGameplayScreen(void)
         finishScreen = 1;
     }
 
-    UpdatePlayer(dt);
+    if (MouseOverRadar())
+    {
+        if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
+        {
+//            TraceLog(LOG_INFO, TextFormat("radar clicked %f, %f", GetMousePosition().x, GetMousePosition().y));
+            worldCamera.target = VirtualMouseToWorldPos();
+        }
+    }
 
+    UpdatePlayer(dt);
     UpdateAmmo(dt, player.position);
 	UpdateUnits();
 
@@ -167,6 +177,8 @@ void DrawGameplayScreen(void)
                     DrawRectangle(friendlyUnits.units[i].position.x, friendlyUnits.units[i].position.y, 50, 50, BLUE);
                 }
             }
+
+            DrawRectangleLinesEx((Rectangle){worldCamera.target.x - 900, worldCamera.target.y - 675, 1800, 1350}, 50, DARKGRAY);
         EndMode2D();
     EndTextureMode();
 
@@ -208,7 +220,7 @@ int FinishGameplayScreen(void)
 
 void Shoot()
 {
-    if (ammo.count > 0)
+    if (player.reloadTimer == 0 && ammo.count > 0)
     {
         variance = (Vector2){(float)GetRandomValue(-5, 5)/100, (float)GetRandomValue(-5, 5)/100};
 
@@ -224,6 +236,8 @@ void Shoot()
 
         ammo.shellIterator++;
         ammo.count--;
+
+        player.reloadTimer = RELOAD_TIME;
     }
 }
 
@@ -279,7 +293,7 @@ void DrawGui()
     DrawTexturePro(
         sideRenderTexture.texture,
         (Rectangle){0, 0, -sideRenderTexture.texture.width, sideRenderTexture.texture.height},
-        (Rectangle){776, 117, 230, 230},
+        radarRect,
         (Vector2){115, 115},
         180,
         WHITE);
@@ -331,4 +345,27 @@ void DrawSprite(int offsetX, int offsetY, Vector2 position, Vector2 origin, floa
 
 Vector2 RotationToVector(float rotation){
     return (Vector2){sinf(rotation * DEG2RAD), -cosf(rotation * DEG2RAD)};
+}
+
+bool MouseOverRadar()
+{
+    return PointInsideRect(GetMousePosition(), (Rectangle){radarRect.x - 115, radarRect.y - 115, radarRect.width, radarRect.height});
+}
+
+bool PointInsideRect(Vector2 point, Rectangle rect)
+{
+    return (point.x >= rect.x) && (point.x <= rect.x + rect.width) &&
+            (point.y >= rect.y) && (point.y <= rect.y + rect.height);
+}
+
+Vector2 VirtualMouseToWorldPos()
+{
+    Vector2 mousePos = GetMousePosition();
+    return (Vector2)
+            {
+                    (mousePos.x - radarRect.x) / radarRect.width  * 6000,
+                    (mousePos.y - radarRect.y) / radarRect.height * 6000
+            };
+//    TraceLog(LOG_INFO, TextFormat("(%f, %f)", result.x, result.y));
+//    return result;
 }

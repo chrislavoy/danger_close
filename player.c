@@ -25,6 +25,7 @@ void InitPlayer(void)
     player.targetRotation = 0;
     player.color = WHITE;
     player.fireRange = MAX_FIRE_RANGE;
+    player.reloadTimer = 0;
 }
 
 void UpdatePlayer(float dt)
@@ -55,6 +56,12 @@ void UpdatePlayer(float dt)
     {
         Shoot();
     }
+
+    if (player.reloadTimer > 0)
+        player.reloadTimer -= dt;
+
+    if (player.reloadTimer < 0)
+        player.reloadTimer = 0;
 }
 
 void DrawPlayer()

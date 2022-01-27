@@ -19,6 +19,7 @@ typedef struct Player {
     float targetRotation;
     Color color;
     float fireRange;
+    float reloadTimer;
 } Player;
 
 extern Player player;
