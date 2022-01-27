@@ -30,7 +30,7 @@ void InitEnemies()
         unit->origin = (Vector2){32, 32};
         unit->position = (Vector2){GetRandomValue(-2999, 2999), GetRandomValue(-3000, -2000)};
         unit->rectangle = (Rectangle) {0, 0, 64, 64};
-        unit->rotation = 0;
+        unit->rotation = 180;
         unit->color = WHITE;
         unit->movementSpeed = 3;
         unit->moveTo = (Vector2){unit->position.x, 3000};//Vector2Add(enemyUnits.units[i].position, (Vector2){0, 1000});
