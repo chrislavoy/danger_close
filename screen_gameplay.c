@@ -150,7 +150,6 @@ void UpdateGameplayScreen(void)
 
         if (MouseOverWorld() && GetMouseWheelMove() != 0)
         {
-//            worldCamera.zoom += GetMouseWheelMove() / 10;
             worldCamera.zoom = Clamp(worldCamera.zoom + (GetMouseWheelMove() / 10), 0.1f, 1.0f);
         }
 
@@ -234,11 +233,10 @@ void DrawGameplayScreen(void)
         float screenWidth = GetScreenWidth();
         DrawRectangle(0, 0, screenWidth, GetScreenHeight(), BLACK);
         DrawText("Pause", screenWidth/2 - (TextLength("Pause")*8), 100, 40, WHITE);
-//        DrawText("Pause", 360, 100, 40, WHITE);
         masterVolume = GuiSlider((Rectangle){screenWidth/2-100, 200, 200, 25}, "Master Volume", ((void *) 0), masterVolume, 0, 1.0f);
         musicVolume = GuiSlider((Rectangle){screenWidth/2-100, 240, 200, 25}, "Music Volume", ((void *) 0), musicVolume, 0, 1.0f);
-        if (GuiButton((Rectangle){screenWidth/2-100, 270, 200, 25}, "Unpause")) paused = false;
-        if (GuiButton((Rectangle){screenWidth/2-100, 300, 200, 25}, "Quit"))
+        if (GuiButton((Rectangle){screenWidth/2-100, 350, 200, 35}, "Unpause")) paused = false;
+        if (GuiButton((Rectangle){screenWidth/2-100, 400, 200, 35}, "Quit"))
         {
             finishScreen = 1;
             endCondition = LOSE;
