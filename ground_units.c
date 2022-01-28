@@ -28,6 +28,9 @@ Vector2 enemyTargetPos2  = (Vector2){0, 2800};
 
 Vector2 targetList[3];
 
+float soundCoolDownMax = 0.1f;
+float soundCoolDown = 0;
+
 void InitUnits(int wave)
 {
     targetList[0] = enemyTargetPos1a;
@@ -89,6 +92,14 @@ void UpdateUnits()
 {
     UpdateEnemyUnits();
     UpdateFriendlyUnits();
+
+    if (soundCoolDown > 0)
+    {
+        soundCoolDown -= GetFrameTime();
+
+        if (soundCoolDown < 0)
+            soundCoolDown = 0;
+    }
 }
 
 void UpdateEnemyUnits()
@@ -274,8 +285,13 @@ int DamageUnitsInsideArea(Vector2 position, float radius, short team)
 
 void AttackUnit(int team, int index)
 {
-    SetSoundVolume(fxUnitShoot, 0.15f);
-    PlaySoundMulti(fxUnitShoot);
+    if (soundCoolDown == 0)
+    {
+        SetSoundVolume(fxUnitShoot, 0.15f);
+        SetSoundPitch(fxUnitShoot, 1.0f - ((float)GetRandomValue(0, 10) / 100));
+        PlaySoundMulti(fxUnitShoot);
+        soundCoolDown = soundCoolDownMax;
+    }
     Units* unitList = (team == FRIENDLY_TEAM) ? &friendlyUnits : &enemyUnits;
     float hitChance = (team == FRIENDLY_TEAM) ? FRIENDLY_HIT_CHANCE : ENEMY_HIT_CHANCE;
     if((float)GetRandomValue(0, 100) / 100.0f > (1.0f - hitChance))

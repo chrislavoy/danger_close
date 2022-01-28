@@ -36,6 +36,7 @@ char* endMessage;
 const char* scoreMessage;
 const char* enemiesMessage;
 const char* friendliesMessage;
+const char* shellsFiredMessage;
 
 //----------------------------------------------------------------------------------
 // Ending Screen Functions Definition
@@ -63,8 +64,9 @@ void InitEndingScreen(void)
     }
 
     scoreMessage = TextFormat("Score: %d", score);
-    enemiesMessage = TextFormat("Enemies Killed: %d", enemiesKilled);
-    friendliesMessage = TextFormat("Friendlies Killed: %d", friendliesKilled);
+    enemiesMessage = TextFormat("Enemies You Killed: %d", enemiesKilled);
+    friendliesMessage = TextFormat("Friendlies You Killed: %d", friendliesKilled);
+    shellsFiredMessage = TextFormat("Shells You Fired: %d", shellsFired);
 }
 
 // Ending Screen Update logic
@@ -85,8 +87,9 @@ void DrawEndingScreen(void)
     DrawText(scoreMessage, screenWidth/2 - (TextLength(scoreMessage)*8), 200, 30, WHITE);
     DrawText(enemiesMessage, screenWidth/2 - (TextLength(enemiesMessage)*8), 250, 30, WHITE);
     DrawText(friendliesMessage, screenWidth/2 - (TextLength(friendliesMessage)*8), 300, 30, WHITE);
+    DrawText(shellsFiredMessage, screenWidth/2 - (TextLength(shellsFiredMessage)*8), 350, 30, WHITE);
 
-    if (GuiButton((Rectangle){screenWidth/2 - 50, 400, 100, 50}, "Retry"))
+    if (GuiButton((Rectangle){screenWidth/2 - 50, 450, 100, 50}, "Retry"))
     {
         finishScreen = 2;
     }

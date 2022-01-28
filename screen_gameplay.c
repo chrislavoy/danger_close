@@ -317,7 +317,6 @@ void Explode(int shellIndex)
 {
     Shell* shell = &ammo.shells[shellIndex];
     float volume = 1 - Vector2Distance(shell->position, worldCamera.target) / 3000;//1 - ammo.shells[shellIndex].range / (MAX_FIRE_RANGE + 200);
-    TraceLog(LOG_INFO, TextFormat("Volume: %f", volume));
     SetSoundVolume(fxImpact, volume);
     PlaySoundMulti(fxImpact);
     SpawnDecal(IMPACT, shell->position);
@@ -377,25 +376,25 @@ void DrawGui()
     int yOffset = 240;
 
     GuiLabel((Rectangle){655, yOffset, 150, 25}, TextFormat("Zoom: %.2f", worldCamera.zoom));
-    yOffset += 30;
+    yOffset += 20;
     worldCamera.zoom = GuiSlider((Rectangle){655, yOffset, 240, 15}, NULL, NULL, worldCamera.zoom, 0.1f, 1.0f);
     yOffset += 30;
 
     // Range controls
     GuiLabel((Rectangle){655, yOffset, 150, 25}, TextFormat("Range: %.2f", player.fireRange));
-    yOffset += 30;
+    yOffset += 20;
     player.fireRange = GuiSlider((Rectangle){655, yOffset, 240, 25}, NULL, NULL, player.fireRange, MIN_FIRE_RANGE, MAX_FIRE_RANGE);
     yOffset += 30;
 
     // Rotation controls
     GuiLabel((Rectangle){655, yOffset, 150, 25}, TextFormat("Rotation: %.2f", player.targetRotation));
-    yOffset += 30;
+    yOffset += 20;
     player.targetRotation = GuiSlider((Rectangle){655, yOffset, 240, 25}, NULL, NULL, player.targetRotation, -MAX_ROTATION, MAX_ROTATION);
     yOffset += 30;
 
     // Player health bar
-    GuiLabel((Rectangle){655, yOffset, 150, 25}, TextFormat("Health: %.2f", player.health));
-    yOffset += 30;
+    GuiLabel((Rectangle){655, yOffset, 150, 25}, "Health:");
+    yOffset += 20;
     GuiProgressBar((Rectangle){655, yOffset, 240, 15}, NULL, NULL, player.health, 0, 100);
     yOffset += 40;
 
