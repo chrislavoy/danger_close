@@ -63,13 +63,20 @@ void DrawDecals(void)
     for (int i = 0; i < impactDecals.capacity; ++i)
     {
         decal = &impactDecals.decals[i];
-        DrawSprite(21, 0, decal->position, decal->origin, decal->rotation);
+        if (decal->active)
+        {
+            decal = &impactDecals.decals[i];
+            DrawSprite(21, 0, decal->position, decal->origin, decal->rotation);
+        }
     }
 
     for (int i = 0; i < corpseDecals.capacity; ++i)
     {
         decal = &corpseDecals.decals[i];
-//        DrawSpriteColor(22, 0, decal->position, decal->origin, decal->rotation, MAROON);
-        DrawTexturePro(corpseTexture, (Rectangle){0, 0, corpseTexture.width, corpseTexture.height}, (Rectangle){decal->position.x, decal->position.y, 64, 64}, (Vector2){32, 32}, decal->rotation, MAROON);
+        if (decal->active)
+        {
+            decal = &corpseDecals.decals[i];
+            DrawTexturePro(corpseTexture, (Rectangle){0, 0, corpseTexture.width, corpseTexture.height}, (Rectangle){decal->position.x, decal->position.y, 64, 64}, (Vector2){32, 32}, decal->rotation, RED);
+        }
     }
 }

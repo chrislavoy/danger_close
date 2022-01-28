@@ -31,6 +31,7 @@
 #include "ammo.h"
 #include "ground_units.h"
 #include "decals.h"
+#include "animations.h"
 
 #define NULL ((void *)0)
 #define RELOAD_TIME 2.0f
@@ -66,6 +67,9 @@ int wave = 1;
 ImpactDecals impactDecals;
 CorpseDecals corpseDecals;
 
+ImpactAnimations impactAnimations;
+Animation shootAnimation;
+
 //----------------------------------------------------------------------------------
 // Gameplay Screen Functions Definition
 //----------------------------------------------------------------------------------
@@ -84,6 +88,7 @@ void InitGameplayScreen(void)
     score = 0;
     enemiesKilled = 0;
     friendliesKilled = 0;
+    shellsFired = 0;
     wave = 1;
     framesCounter = 0;
     finishScreen = 0;
@@ -91,6 +96,7 @@ void InitGameplayScreen(void)
     InitPlayer();
 	InitUnits(wave);
     InitDecals();
+    InitAnimations();
 
 	mainRenderTexture = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
 	SetTextureFilter(mainRenderTexture.texture, TEXTURE_FILTER_ANISOTROPIC_16X);
@@ -137,6 +143,7 @@ void UpdateGameplayScreen(void)
     UpdatePlayer(dt);
     UpdateAmmo(dt, player.position);
 	UpdateUnits();
+    UpdateAnimations(dt);
 
     if (feedbackTimer > 0)
     {
@@ -246,6 +253,7 @@ void DrawGameplayScreen(void)
 			ClearBackground(BLACK);
 			DrawTextureEx(worldTexture, (Vector2){-3200, -3200}, 0, 1, WHITE);
             DrawDecals();
+            DrawAnimations();
 			DrawAmmo();
 			DrawPlayer();
 			DrawUnits();
@@ -262,7 +270,7 @@ void DrawGameplayScreen(void)
 		WHITE);
     DrawGui();
     DrawMessage();
-    DrawText(TextFormat("Score: %d", score), 10, 10, 20, BLACK);
+//    DrawText(TextFormat("Score: %d", score), 10, 10, 20, BLACK);
 }
 
 // Gameplay Screen Unload logic
@@ -287,6 +295,7 @@ void Shoot()
 
         SetSoundPitch(fxShoot, 1);
         PlaySound(fxShoot);
+        StartShootAnimation(player.position, player.rotation);
         shellsFired++;
 
         ammo.shells[ammo.shellIterator].rotation = player.rotation;
@@ -312,6 +321,7 @@ void Explode(int shellIndex)
     SetSoundVolume(fxImpact, volume);
     PlaySoundMulti(fxImpact);
     SpawnDecal(IMPACT, shell->position);
+    SpawnImpactAnimation(shell->position);
     shell->active = false;
 
     int enemiesHit =    DamageUnitsInsideArea(shell->position, shell->blastRadius, ENEMY_TEAM);
@@ -384,6 +394,11 @@ void DrawGui()
     {
         Shoot();
     }
+
+    GuiLabel((Rectangle){655, 520, 240, 25}, TextFormat("Score: %d", score));
+    GuiLabel((Rectangle){655, 540, 240, 25}, TextFormat("Friendlies Remaining: %d", FriendliesRemaining()));
+    GuiLabel((Rectangle){655, 560, 240, 25}, TextFormat("Enemies Remaining: %d", EnemiesRemaining()));
+    GuiLabel((Rectangle){655, 590, 240, 25}, TextFormat("ShootAnimation: %d", shootAnimation.active));
 }
 
 void DrawSprite(int offsetX, int offsetY, Vector2 position, Vector2 origin, float rotation)
@@ -400,7 +415,8 @@ void DrawSpriteColor(int offsetX, int offsetY, Vector2 position, Vector2 origin,
     DrawTexturePro(spriteSheet, source, dest, origin, rotation, color);
 }
 
-Vector2 RotationToVector(float rotation){
+Vector2 RotationToVector(float rotation)
+{
     return (Vector2){sinf(rotation * DEG2RAD), -cosf(rotation * DEG2RAD)};
 }
 
@@ -420,8 +436,8 @@ Vector2 VirtualMouseToWorldPos()
     Vector2 mousePos = GetMousePosition();
     return (Vector2)
             {
-                    (mousePos.x - radarRect.x) / radarRect.width  * 6000,
-                    (mousePos.y - radarRect.y) / radarRect.height * 6000
+                    Clamp(((mousePos.x - radarRect.x) / radarRect.width  * 6000), -2600, 2600),
+                    Clamp(((mousePos.y - radarRect.y) / radarRect.height * 6000), -2600, 2600)
             };
 }
 

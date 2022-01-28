@@ -33,11 +33,6 @@
 typedef enum GameScreen { LOGO = 0, TITLE, OPTIONS, GAMEPLAY, ENDING } GameScreen;
 typedef enum EndCondition { WIN = 0, PYRRHIC_WIN, LOSE } EndCondition;
 
-typedef struct Animation {
-    float lifetime;
-
-} Animation;
-
 //----------------------------------------------------------------------------------
 // Global Variables Declaration (shared by several modules)
 //----------------------------------------------------------------------------------

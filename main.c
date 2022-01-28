@@ -37,7 +37,7 @@ EndCondition endCondition = { 0 };
 // Global Variables Definition
 int screenWidth = 900;
 int screenHeight = 675;
-float musicVolume = 0.3f;
+float musicVolume = 0.1f;
 float masterVolume = 1.0f;
 int score = 0;
 int enemiesKilled = 0;

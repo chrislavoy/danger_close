@@ -22,7 +22,7 @@ if (NOT raylib_FOUND) # If there's none, fetch and build raylib
 endif()
 
 # Our Project
-add_executable(danger_close main.c screens.h screen_ending.c screen_title.c screen_options.c screen_logo.c screen_gameplay.c player.h player.c ammo.h ammo.c ground_units.h ground_units.c decals.h decals.c)
+add_executable(danger_close main.c screens.h screen_ending.c screen_title.c screen_options.c screen_logo.c screen_gameplay.c player.h player.c ammo.h ammo.c ground_units.h ground_units.c decals.h decals.c animations.h animations.c)
 
 #set(raylib_VERBOSE 1)
 target_link_libraries(${PROJECT_NAME} raylib)
