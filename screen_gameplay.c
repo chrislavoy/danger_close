@@ -164,7 +164,7 @@ void UpdateGameplayScreen(void)
         if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D)) player.targetRotation += 5 * dt;
         if (IsKeyDown(KEY_UP) || IsKeyDown(KEY_W)) ChangeRange(500 * dt);
         if (IsKeyDown(KEY_DOWN) || IsKeyDown(KEY_S)) ChangeRange(-500 * dt);
-        if (IsKeyPressed(KEY_SPACE)) Shoot();
+        if (IsKeyDown(KEY_SPACE) || IsKeyDown(KEY_LEFT_CONTROL) || IsKeyDown(KEY_RIGHT_CONTROL)) Shoot();
 
 //        if (IsGestureDetected(GESTURE_DRAG))
 //        {
@@ -251,7 +251,7 @@ void DrawGameplayScreen(void)
         musicVolume = GuiSlider((Rectangle){screenWidth/2-100, 240, 200, 25}, "Music Volume", ((void *) 0), musicVolume, 0, 1.0f);
 
         DrawText("Controls", 410, 300, 20, WHITE);
-        DrawText("A & D | Left & Right - Adjust Angle\nW & S | Up & Down - Adjust Range\nSpace - Fire\nEsc - Pause/Unpause", 270, 330, 20, WHITE);
+        DrawText("A & D | Left & Right - Adjust Angle\nW & S | Up & Down - Adjust Range\nSpace | Left Ctrl | Right Ctrl - Fire\nEsc - Pause/Unpause", 270, 330, 20, WHITE);
 
         if (GuiButton((Rectangle){screenWidth/2-50, 450, 100, 25}, "Unpause")) paused = false;
         if (GuiButton((Rectangle){screenWidth/2-50, 480, 100, 25}, "Quit"))

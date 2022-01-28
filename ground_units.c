@@ -52,7 +52,7 @@ void InitEnemies(int wave)
         unit->rectangle = (Rectangle) {0, 0, 64, 64};
         unit->rotation = 180;
         unit->color = WHITE;
-        unit->movementSpeed = 2;
+        unit->movementSpeed = (float)GetRandomValue(5,10) / 5;
         unit->active = true;
         unit->team = ENEMY_TEAM;
         unit->target = -1;

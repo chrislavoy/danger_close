@@ -65,7 +65,7 @@ void DrawOptionsScreen(void)
 
     DrawRectangle(250, 380, 400, 200, RAYWHITE);
     DrawText("Controls", 410, 400, 20, BLACK);
-    DrawText("A & D | Left & Right - Adjust Angle\nW & S | Up & Down - Adjust Range\nSpace - Fire\nEsc - Pause/Unpause", 270, 430, 20, BLACK);
+    DrawText("A & D | Left & Right - Adjust Angle\nW & S | Up & Down - Adjust Range\nSpace | Left Ctrl | Right Ctrl - Fire\nEsc - Pause/Unpause", 270, 430, 20, BLACK);
 
     SetMasterVolume(masterVolume);
     SetMusicVolume(music, musicVolume);
