@@ -61,6 +61,8 @@ void InitTitleScreen(void)
     Vector2 pos1 = (Vector2){GetRandomValue(100, GetScreenWidth()-100), GetRandomValue(100, GetScreenHeight()-100)};
     SpawnImpactAnimation(pos1);
     SpawnDecal(IMPACT, pos1);
+    SetSoundVolume(fxImpact, 0.1f);
+    PlaySound(fxImpact);
 
 //    Vector2 pos2 = (Vector2){700, 450};
 //    SpawnImpactAnimation(pos2);
@@ -89,6 +91,8 @@ void UpdateTitleScreen(void)
         Vector2 randomPos = (Vector2){GetRandomValue(100, GetScreenWidth()-100), GetRandomValue(100, GetScreenHeight()-100)};
         SpawnImpactAnimation(randomPos);
         SpawnDecal(IMPACT, randomPos);
+        SetSoundVolume(fxImpact, 0.1f);
+        PlaySound(fxImpact);
         timer = time_max;
     }
 }

@@ -471,7 +471,7 @@ void DrawGui()
 
 void DrawSprite(int offsetX, int offsetY, Vector2 position, Vector2 origin, float rotation)
 {
-    Rectangle source = (Rectangle){offsetX*64, offsetY*64, 64, 64};
+    Rectangle source = (Rectangle){offsetX*64+1, offsetY*64+1, 63, 63}; // Offsetting by 1px for each side because of lines when drawing
     Rectangle dest = (Rectangle){position.x, position.y, 64, 64};
     DrawTexturePro(spriteSheet, source, dest, origin, rotation, WHITE);
 }
