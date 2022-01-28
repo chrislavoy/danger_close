@@ -89,12 +89,12 @@ void DrawEndingScreen(void)
     DrawText(friendliesMessage, screenWidth/2 - (TextLength(friendliesMessage)*8), 300, 30, WHITE);
     DrawText(shellsFiredMessage, screenWidth/2 - (TextLength(shellsFiredMessage)*8), 350, 30, WHITE);
 
-    if (GuiButton((Rectangle){screenWidth/2 - 50, 450, 100, 50}, "Retry"))
+    if (GuiButton((Rectangle){screenWidth/2 - 50, 450, 100, 25}, "Retry"))
     {
         finishScreen = 2;
     }
 
-    if (GuiButton((Rectangle){screenWidth/2 - 50, 510, 100, 50}, "Menu"))
+    if (GuiButton((Rectangle){screenWidth/2 - 50, 480, 100, 25}, "Menu"))
     {
         finishScreen = 1;
     }

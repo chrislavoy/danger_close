@@ -148,10 +148,17 @@ void UpdateGameplayScreen(void)
             worldCamera.target = Vector2Add(worldCamera.target, Vector2Scale(GetMouseDelta(), -1/worldCamera.zoom));
         }
 
+#if defined(PLATFORM_WEB)
+        if (MouseOverWorld() && GetMouseWheelMove() != 0)
+        {
+            worldCamera.zoom = Clamp(worldCamera.zoom - (GetMouseWheelMove() / 10), 0.1f, 1.0f);
+        }
+#else
         if (MouseOverWorld() && GetMouseWheelMove() != 0)
         {
             worldCamera.zoom = Clamp(worldCamera.zoom + (GetMouseWheelMove() / 10), 0.1f, 1.0f);
         }
+#endif
 
 //        if (IsGestureDetected(GESTURE_DRAG))
 //        {
@@ -235,8 +242,8 @@ void DrawGameplayScreen(void)
         DrawText("Pause", screenWidth/2 - (TextLength("Pause")*8), 100, 40, WHITE);
         masterVolume = GuiSlider((Rectangle){screenWidth/2-100, 200, 200, 25}, "Master Volume", ((void *) 0), masterVolume, 0, 1.0f);
         musicVolume = GuiSlider((Rectangle){screenWidth/2-100, 240, 200, 25}, "Music Volume", ((void *) 0), musicVolume, 0, 1.0f);
-        if (GuiButton((Rectangle){screenWidth/2-100, 350, 200, 35}, "Unpause")) paused = false;
-        if (GuiButton((Rectangle){screenWidth/2-100, 400, 200, 35}, "Quit"))
+        if (GuiButton((Rectangle){screenWidth/2-50, 350, 100, 25}, "Unpause")) paused = false;
+        if (GuiButton((Rectangle){screenWidth/2-50, 380, 100, 25}, "Quit"))
         {
             finishScreen = 1;
             endCondition = LOSE;

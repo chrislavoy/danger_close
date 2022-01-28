@@ -78,16 +78,16 @@ int main()
     fxUnitShoot = LoadSound("assets/unitShoot.mp3");
 
     spriteSheet = LoadTexture("assets/towerDefense_tilesheet.png");
-    SetTextureFilter(spriteSheet, TEXTURE_FILTER_ANISOTROPIC_16X);
+//    SetTextureFilter(spriteSheet, TEXTURE_FILTER_ANISOTROPIC_16X);
 
 	worldTexture = LoadTexture("assets/DangerClose.png");
-	SetTextureFilter(worldTexture, TEXTURE_FILTER_ANISOTROPIC_16X);
+//	SetTextureFilter(worldTexture, TEXTURE_FILTER_ANISOTROPIC_16X);
 
     corpseTexture = LoadTexture("assets/dirt_01.png");
-    SetTextureFilter(corpseTexture, TEXTURE_FILTER_ANISOTROPIC_16X);
+//    SetTextureFilter(corpseTexture, TEXTURE_FILTER_ANISOTROPIC_16X);
 
     smokeTexture = LoadTexture("assets/smoke_07.png");
-    SetTextureFilter(smokeTexture, TEXTURE_FILTER_ANISOTROPIC_16X);
+//    SetTextureFilter(smokeTexture, TEXTURE_FILTER_ANISOTROPIC_16X);
 
     SetMusicVolume(music, musicVolume);
     PlayMusicStream(music);
