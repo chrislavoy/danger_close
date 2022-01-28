@@ -250,7 +250,7 @@ void DrawGameplayScreen(void)
         musicVolume = GuiSlider((Rectangle){screenWidth/2-100, 240, 200, 25}, "Music Volume", ((void *) 0), musicVolume, 0, 1.0f);
 
         DrawText("Controls", 410, 300, 20, WHITE);
-        DrawText("Left & Right - Adjust Angle\nUp & Down - Adjust Range\nSpace - Fire\nEsc - Pause/Unpause", 300, 330, 20, WHITE);
+        DrawText("A & D | Left & Right - Adjust Angle\nW & S | Up & Down - Adjust Range\nSpace - Fire\nEsc - Pause/Unpause", 270, 330, 20, WHITE);
 
         if (GuiButton((Rectangle){screenWidth/2-50, 450, 100, 25}, "Unpause")) paused = false;
         if (GuiButton((Rectangle){screenWidth/2-50, 480, 100, 25}, "Quit"))
