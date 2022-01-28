@@ -134,13 +134,6 @@ void UpdateGameplayScreen(void)
             paused = true;
         }
 
-        // Press enter or tap to change to ENDING screen
-//        if (IsKeyPressed(KEY_BACKSPACE))
-//        {
-//            finishScreen = 1;
-//            endCondition = LOSE;
-//        }
-
         if (MouseOverRadar())
         {
             if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
@@ -148,6 +141,21 @@ void UpdateGameplayScreen(void)
                 worldCamera.target = VirtualMouseToWorldPos();
             }
         }
+
+        if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
+        {
+            worldCamera.target = Vector2Add(worldCamera.target, Vector2Scale(GetMouseDelta(), -1/worldCamera.zoom));
+        }
+
+//        if (IsGestureDetected(GESTURE_DRAG))
+//        {
+//            worldCamera.target = Vector2Add(worldCamera.target, Vector2Scale(GetGestureDragVector(), -1/worldCamera.zoom));
+//        }
+//
+//        if (IsGestureDetected(GESTURE_PINCH_IN))
+//        {
+//            worldCamera.zoom = Clamp(Vector2Length(GetGesturePinchVector()), 0.1f, 1.0f);
+//        }
 
         UpdatePlayer(dt);
         UpdateAmmo(dt, player.position);
