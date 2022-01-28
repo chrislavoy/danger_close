@@ -70,6 +70,8 @@ int main()
     InitWindow(screenWidth, screenHeight, "Danger Close");
     InitAudioDevice();
 
+    SetExitKey(KEY_BACKSPACE);
+
     music = LoadMusicStream("assets/backgroundMusic.mp3");
     fxShoot = LoadSound("assets/gun.wav");
     fxImpact = LoadSound("assets/impact.wav");

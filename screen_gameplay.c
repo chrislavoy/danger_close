@@ -63,6 +63,7 @@ char feedbackMessage[50];
 bool showMessage = false;
 Rectangle radarRect = (Rectangle){776, 117, 230, 230};
 int wave = 1;
+bool paused = false;
 
 ImpactDecals impactDecals;
 CorpseDecals corpseDecals;
@@ -85,6 +86,7 @@ int FriendliesRemaining();
 void InitGameplayScreen(void)
 {
     // TODO: Initialize GAMEPLAY screen variables here!
+    paused = false;
     score = 0;
     enemiesKilled = 0;
     friendliesKilled = 0;
@@ -123,154 +125,190 @@ void InitGameplayScreen(void)
 void UpdateGameplayScreen(void)
 {
     // TODO: Update GAMEPLAY screen variables here!
-    float dt = GetFrameTime();
-
-    // Press enter or tap to change to ENDING screen
-    if (IsKeyPressed(KEY_BACKSPACE))
+    if (!paused)
     {
-        finishScreen = 1;
-        endCondition = LOSE;
-    }
+        float dt = GetFrameTime();
 
-    if (MouseOverRadar())
-    {
-        if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
+        if (IsKeyPressed(KEY_ESCAPE))
         {
-            worldCamera.target = VirtualMouseToWorldPos();
+            paused = true;
         }
-    }
 
-    UpdatePlayer(dt);
-    UpdateAmmo(dt, player.position);
-	UpdateUnits();
-    UpdateAnimations(dt);
+        // Press enter or tap to change to ENDING screen
+//        if (IsKeyPressed(KEY_BACKSPACE))
+//        {
+//            finishScreen = 1;
+//            endCondition = LOSE;
+//        }
 
-    if (feedbackTimer > 0)
-    {
-        feedbackTimer -= dt;
-		showMessage = true;
-
-        if (feedbackTimer < 0)
+        if (MouseOverRadar())
         {
-            feedbackTimer = 0;
-            showMessage = false;
-        }
-    }
-
-    if (EnemiesRemaining() == 0)
-    {
-        if (wave < 3)
-        {
-            ResetEnemies(wave);
-            ResetFriendlies();
-            wave++;
-            const int count_for_wave = wave * 200;
-            feedbackTimer = 0;
-            SetMessage(TextFormat("Wave: %d\n%d Enemies incoming!", wave, count_for_wave));
-        }
-        else
-        {
-            if (FriendliesRemaining() < friendlyUnits.capacity/4)
+            if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
             {
-                endCondition = PYRRHIC_WIN;
+                worldCamera.target = VirtualMouseToWorldPos();
+            }
+        }
+
+        UpdatePlayer(dt);
+        UpdateAmmo(dt, player.position);
+        UpdateUnits();
+        UpdateAnimations(dt);
+
+        if (feedbackTimer > 0)
+        {
+            feedbackTimer -= dt;
+            showMessage = true;
+
+            if (feedbackTimer < 0)
+            {
+                feedbackTimer = 0;
+                showMessage = false;
+            }
+        }
+
+        if (EnemiesRemaining() == 0)
+        {
+            if (wave < 3)
+            {
+                ResetEnemies(wave);
+                ResetFriendlies();
+                wave++;
+                const int count_for_wave = wave * 200;
+                feedbackTimer = 0;
+                SetMessage(TextFormat("Wave: %d\n%d Enemies incoming!", wave, count_for_wave));
             }
             else
             {
-                endCondition = WIN;
+                if (FriendliesRemaining() < friendlyUnits.capacity/4)
+                {
+                    endCondition = PYRRHIC_WIN;
+                }
+                else
+                {
+                    endCondition = WIN;
+                }
+
+                EndGameResetUnits();
+                ResetDecals();
+
+                finishScreen = 1;
             }
+        }
 
+        if (!player.alive)
+        {
             EndGameResetUnits();
-            ResetDecals();
-
+            endCondition = LOSE;
             finishScreen = 1;
         }
     }
-
-    if (!player.alive)
+    else
     {
-        EndGameResetUnits();
-        endCondition = LOSE;
-        finishScreen = 1;
+        if (IsKeyPressed(KEY_ESCAPE))
+        {
+            paused = false;
+        }
     }
 }
 
 // Gameplay Screen Draw logic
 void DrawGameplayScreen(void)
 {
-    // Draw "radar" view
-    BeginTextureMode(sideRenderTexture);
-        BeginMode2D(mapCamera);
-			ClearBackground(RAYWHITE);
+    if (paused)
+    {
+        float screenWidth = GetScreenWidth();
+        DrawRectangle(0, 0, screenWidth, GetScreenHeight(), BLACK);
+        DrawText("Pause", screenWidth/2 - (TextLength("Pause")*8), 100, 40, WHITE);
+//        DrawText("Pause", 360, 100, 40, WHITE);
+        masterVolume = GuiSlider((Rectangle){screenWidth/2-100, 200, 200, 25}, "Master Volume", ((void *) 0), masterVolume, 0, 1.0f);
+        musicVolume = GuiSlider((Rectangle){screenWidth/2-100, 240, 200, 25}, "Music Volume", ((void *) 0), musicVolume, 0, 1.0f);
+        if (GuiButton((Rectangle){screenWidth/2-100, 270, 200, 25}, "Unpause")) paused = false;
+        if (GuiButton((Rectangle){screenWidth/2-100, 300, 200, 25}, "Quit"))
+        {
+            finishScreen = 1;
+            endCondition = LOSE;
+        }
 
-			// Draw world
-			DrawTextureEx(worldTexture, (Vector2){-3200, -3200}, 0, 1, WHITE);
+        SetMasterVolume(masterVolume);
+        SetMusicVolume(music, musicVolume);
+    }
+    else
+    {
+        // Draw "radar" view
+        BeginTextureMode(sideRenderTexture);
+            BeginMode2D(mapCamera);
+                ClearBackground(RAYWHITE);
 
-	        // Draw player
-	        DrawRectangle(player.position.x - 25, player.position.y - 25, 50, 50, BLUE);
+                // Draw world
+                DrawTextureEx(worldTexture, (Vector2){-3200, -3200}, 0, 1, WHITE);
 
-	        // Draw range
-            DrawCircleSector(player.position, player.fireRange, 180-MAX_ROTATION, 180+MAX_ROTATION, 0, Fade(MAROON, 0.4f));
+                // Draw player
+                DrawRectangle(player.position.x - 25, player.position.y - 25, 50, 50, BLUE);
 
-	        // Draw player rotation
-	        Vector2 rotVec = Vector2Add(Vector2Scale(RotationToVector(player.rotation), 250), player.position);
-	        DrawLineEx(player.position, rotVec, 50, BLUE);
+                // Draw range
+                DrawCircleSector(player.position, player.fireRange, 180-MAX_ROTATION, 180+MAX_ROTATION, 0, Fade(MAROON, 0.4f));
 
-	        // Draw shells
-	        for (int i = 0; i < ammo.capacity; ++i)
-	        {
-	            Shell shell = ammo.shells[i];
-	            if (shell.active)
-	            {
-	                DrawRectangle(shell.position.x, shell.position.y, 50, 50, BLACK);
-	            }
-	        }
+                // Draw player rotation
+                Vector2 rotVec = Vector2Add(Vector2Scale(RotationToVector(player.rotation), 250), player.position);
+                DrawLineEx(player.position, rotVec, 50, BLUE);
 
-	        // Draw enemyUnits
-	        for (int i = 0; i < enemyUnits.capacity; ++i)
-	        {
-	            if (enemyUnits.units[i].active)
-	            {
-	                DrawRectangle(enemyUnits.units[i].position.x, enemyUnits.units[i].position.y, 50, 50, RED);
-	            }
-	        }
-
-            // Draw Friendlies
-            for (int i = 0; i < friendlyUnits.capacity; ++i)
-            {
-                if (friendlyUnits.units[i].active)
+                // Draw shells
+                for (int i = 0; i < ammo.capacity; ++i)
                 {
-                    DrawRectangle(friendlyUnits.units[i].position.x, friendlyUnits.units[i].position.y, 50, 50, BLUE);
+                    Shell shell = ammo.shells[i];
+                    if (shell.active)
+                    {
+                        DrawRectangle(shell.position.x, shell.position.y, 50, 50, BLACK);
+                    }
                 }
-            }
 
-            // Draw camera borders
-            DrawRectangleLinesEx((Rectangle){worldCamera.target.x - 600, worldCamera.target.y - 600, 1200, 1200}, 50, DARKGRAY);
-        EndMode2D();
-    EndTextureMode();
+                // Draw enemyUnits
+                for (int i = 0; i < enemyUnits.capacity; ++i)
+                {
+                    if (enemyUnits.units[i].active)
+                    {
+                        DrawRectangle(enemyUnits.units[i].position.x, enemyUnits.units[i].position.y, 50, 50, RED);
+                    }
+                }
 
-	BeginTextureMode(mainRenderTexture);
-		BeginMode2D(worldCamera);
-			ClearBackground(BLACK);
-			DrawTextureEx(worldTexture, (Vector2){-3200, -3200}, 0, 1, WHITE);
-            DrawDecals();
-            DrawUnits();
-            DrawPlayer();
-            DrawAnimations();
-			DrawAmmo();
-		EndMode2D();
-	EndTextureMode();
+                // Draw Friendlies
+                for (int i = 0; i < friendlyUnits.capacity; ++i)
+                {
+                    if (friendlyUnits.units[i].active)
+                    {
+                        DrawRectangle(friendlyUnits.units[i].position.x, friendlyUnits.units[i].position.y, 50, 50, BLUE);
+                    }
+                }
 
-    ClearBackground(RAYWHITE);
-	DrawTexturePro(
-		mainRenderTexture.texture,
-		(Rectangle){0, 0, mainRenderTexture.texture.width, -mainRenderTexture.texture.height},
-		(Rectangle){0, 0, GetScreenWidth(), GetScreenHeight()},
-		(Vector2){0, 0},
-		0,
-		WHITE);
-    DrawGui();
-    DrawMessage();
+                // Draw camera borders
+                DrawRectangleLinesEx((Rectangle){worldCamera.target.x - 600, worldCamera.target.y - 600, 1200, 1200}, 50, DARKGRAY);
+            EndMode2D();
+        EndTextureMode();
+
+        BeginTextureMode(mainRenderTexture);
+            BeginMode2D(worldCamera);
+                ClearBackground(BLACK);
+                DrawTextureEx(worldTexture, (Vector2){-3200, -3200}, 0, 1, WHITE);
+                DrawDecals();
+                DrawUnits();
+                DrawPlayer();
+                DrawAnimations();
+                DrawAmmo();
+            EndMode2D();
+        EndTextureMode();
+
+        ClearBackground(RAYWHITE);
+        DrawTexturePro(
+                mainRenderTexture.texture,
+                (Rectangle){0, 0, mainRenderTexture.texture.width, -mainRenderTexture.texture.height},
+                (Rectangle){0, 0, GetScreenWidth(), GetScreenHeight()},
+                (Vector2){0, 0},
+                0,
+                WHITE);
+        DrawGui();
+        DrawMessage();
 //    DrawText(TextFormat("Score: %d", score), 10, 10, 20, BLACK);
+    }
 }
 
 // Gameplay Screen Unload logic
