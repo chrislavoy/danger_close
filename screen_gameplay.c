@@ -253,10 +253,10 @@ void DrawGameplayScreen(void)
 			ClearBackground(BLACK);
 			DrawTextureEx(worldTexture, (Vector2){-3200, -3200}, 0, 1, WHITE);
             DrawDecals();
+            DrawUnits();
+            DrawPlayer();
             DrawAnimations();
 			DrawAmmo();
-			DrawPlayer();
-			DrawUnits();
 		EndMode2D();
 	EndTextureMode();
 
@@ -374,31 +374,49 @@ void DrawGui()
         180,
         WHITE);
 
+    int yOffset = 240;
+
+    GuiLabel((Rectangle){655, yOffset, 150, 25}, TextFormat("Zoom: %.2f", worldCamera.zoom));
+    yOffset += 30;
+    worldCamera.zoom = GuiSlider((Rectangle){655, yOffset, 240, 15}, NULL, NULL, worldCamera.zoom, 0.1f, 1.0f);
+    yOffset += 30;
+
     // Range controls
-    GuiLabel((Rectangle){655, 240, 150, 25}, TextFormat("Range: %.2f", player.fireRange));
-    player.fireRange = GuiSlider((Rectangle){655, 270, 240, 25}, NULL, NULL, player.fireRange, MIN_FIRE_RANGE, MAX_FIRE_RANGE);
+    GuiLabel((Rectangle){655, yOffset, 150, 25}, TextFormat("Range: %.2f", player.fireRange));
+    yOffset += 30;
+    player.fireRange = GuiSlider((Rectangle){655, yOffset, 240, 25}, NULL, NULL, player.fireRange, MIN_FIRE_RANGE, MAX_FIRE_RANGE);
+    yOffset += 30;
 
     // Rotation controls
-    GuiLabel((Rectangle){655, 300, 150, 25}, TextFormat("Rotation: %.2f", player.targetRotation));
-    player.targetRotation = GuiSlider((Rectangle){655, 330, 240, 25}, NULL, NULL, player.targetRotation, -MAX_ROTATION, MAX_ROTATION);
+    GuiLabel((Rectangle){655, yOffset, 150, 25}, TextFormat("Rotation: %.2f", player.targetRotation));
+    yOffset += 30;
+    player.targetRotation = GuiSlider((Rectangle){655, yOffset, 240, 25}, NULL, NULL, player.targetRotation, -MAX_ROTATION, MAX_ROTATION);
+    yOffset += 30;
 
     // Player health bar
-    GuiLabel((Rectangle){655, 370, 150, 25}, TextFormat("Health: %.2f", player.health));
-    GuiProgressBar((Rectangle){655, 400, 240, 15}, NULL, NULL, player.health, 0, 100);
+    GuiLabel((Rectangle){655, yOffset, 150, 25}, TextFormat("Health: %.2f", player.health));
+    yOffset += 30;
+    GuiProgressBar((Rectangle){655, yOffset, 240, 15}, NULL, NULL, player.health, 0, 100);
+    yOffset += 40;
 
     // Reload bar
-    GuiProgressBar((Rectangle){655, 450, 240, 15}, NULL, NULL, RELOAD_TIME - player.reloadTimer, 0, RELOAD_TIME);
+    GuiProgressBar((Rectangle){655, yOffset, 240, 15}, NULL, NULL, RELOAD_TIME - player.reloadTimer, 0, RELOAD_TIME);
+    yOffset += 17;
 
     // Fire button
-    if (GuiButton((Rectangle){655, 470, 240, 50}, "Fire"))
+    if (GuiButton((Rectangle){655, yOffset, 240, 50}, "Fire"))
     {
         Shoot();
     }
+    yOffset += 50;
 
-    GuiLabel((Rectangle){655, 520, 240, 25}, TextFormat("Score: %d", score));
-    GuiLabel((Rectangle){655, 540, 240, 25}, TextFormat("Friendlies Remaining: %d", FriendliesRemaining()));
-    GuiLabel((Rectangle){655, 560, 240, 25}, TextFormat("Enemies Remaining: %d", EnemiesRemaining()));
-    GuiLabel((Rectangle){655, 590, 240, 25}, TextFormat("ShootAnimation: %d", shootAnimation.active));
+    GuiLabel((Rectangle){655, yOffset, 240, 25}, TextFormat("Score: %d", score));
+    yOffset += 20;
+    GuiLabel((Rectangle){655, yOffset, 240, 25}, TextFormat("Friendlies Remaining: %d", FriendliesRemaining()));
+    yOffset += 20;
+    GuiLabel((Rectangle){655, yOffset, 240, 25}, TextFormat("Enemies Remaining: %d", EnemiesRemaining()));
+//    yOffset += 20;
+//    GuiLabel((Rectangle){655, yOffset, 240, 25}, TextFormat("Impact Iterator: %d", impactAnimations.iterator));
 }
 
 void DrawSprite(int offsetX, int offsetY, Vector2 position, Vector2 origin, float rotation)

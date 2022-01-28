@@ -88,7 +88,7 @@ void SpawnImpactAnimation(Vector2 position)
 void StartShootAnimation(Vector2 position, float rotation)
 {
     shootAnimation.active = true;
-    shootAnimation.position = Vector2Add(position, (Vector2){0, -50});
+    shootAnimation.position = position;
     for (int i = 0; i < shootAnimation.elementCount; ++i)
     {
         shootAnimation.elements[i].position = position;
@@ -120,6 +120,7 @@ void UpdateImpactAnimations(float dt)
             if (animation->runtime > animation->maxRuntime)
             {
                 animation->active = false;
+                animation->runtime = 0;
             }
         }
     }
