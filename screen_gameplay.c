@@ -77,6 +77,7 @@ Animation shootAnimation;
 void DrawGui();
 Vector2 RotationToVector(float);
 bool MouseOverRadar();
+bool MouseOverWorld();
 bool PointInsideRect(Vector2, Rectangle);
 Vector2 VirtualMouseToWorldPos();
 int EnemiesRemaining();
@@ -142,9 +143,15 @@ void UpdateGameplayScreen(void)
             }
         }
 
-        if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
+        if (MouseOverWorld() && (IsMouseButtonDown(MOUSE_BUTTON_LEFT) || IsMouseButtonDown(MOUSE_BUTTON_MIDDLE) ))
         {
             worldCamera.target = Vector2Add(worldCamera.target, Vector2Scale(GetMouseDelta(), -1/worldCamera.zoom));
+        }
+
+        if (MouseOverWorld() && GetMouseWheelMove() != 0)
+        {
+//            worldCamera.zoom += GetMouseWheelMove() / 10;
+            worldCamera.zoom = Clamp(worldCamera.zoom + (GetMouseWheelMove() / 10), 0.1f, 1.0f);
         }
 
 //        if (IsGestureDetected(GESTURE_DRAG))
@@ -486,6 +493,11 @@ Vector2 RotationToVector(float rotation)
 bool MouseOverRadar()
 {
     return PointInsideRect(GetMousePosition(), (Rectangle){radarRect.x - 115, radarRect.y - 115, radarRect.width, radarRect.height});
+}
+
+bool MouseOverWorld()
+{
+    return PointInsideRect(GetMousePosition(), (Rectangle){0, 0, 600, 600});
 }
 
 bool PointInsideRect(Vector2 point, Rectangle rect)
