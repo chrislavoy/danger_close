@@ -143,18 +143,18 @@ void UpdateGameplayScreen(void)
             }
         }
 
-        if (MouseOverWorld() && (IsMouseButtonDown(MOUSE_BUTTON_LEFT) || IsMouseButtonDown(MOUSE_BUTTON_MIDDLE) ))
+        if (MouseOverWorld() && (IsMouseButtonDown(MOUSE_BUTTON_LEFT) || IsMouseButtonDown(MOUSE_BUTTON_RIGHT) ))
         {
             worldCamera.target = Vector2Add(worldCamera.target, Vector2Scale(GetMouseDelta(), -1/worldCamera.zoom));
         }
 
 #if defined(PLATFORM_WEB)
-        if (MouseOverWorld() && GetMouseWheelMove() != 0)
+        if ((MouseOverRadar() || MouseOverWorld()) && GetMouseWheelMove() != 0)
         {
             worldCamera.zoom = Clamp(worldCamera.zoom - (GetMouseWheelMove() / 10), 0.1f, 1.0f);
         }
 #else
-        if (MouseOverWorld() && GetMouseWheelMove() != 0)
+        if ((MouseOverRadar() || MouseOverWorld()) && GetMouseWheelMove() != 0)
         {
             worldCamera.zoom = Clamp(worldCamera.zoom + (GetMouseWheelMove() / 10), 0.1f, 1.0f);
         }
@@ -186,7 +186,7 @@ void UpdateGameplayScreen(void)
             feedbackTimer -= dt;
             showMessage = true;
 
-            if (feedbackTimer < 0)
+            if (feedbackTimer <= 0)
             {
                 feedbackTimer = 0;
                 showMessage = false;
@@ -195,11 +195,11 @@ void UpdateGameplayScreen(void)
 
         if (EnemiesRemaining() == 0)
         {
-            if (wave < 3)
+            if (wave < 5)
             {
+                wave++;
                 ResetEnemies(wave);
                 ResetFriendlies();
-                wave++;
                 const int count_for_wave = wave * 200;
                 feedbackTimer = 0;
                 SetMessage(TextFormat("Wave: %d\n%d Enemies incoming!", wave, count_for_wave));
@@ -217,7 +217,7 @@ void UpdateGameplayScreen(void)
 
                 EndGameResetUnits();
                 ResetDecals();
-
+                feedbackTimer = 0;
                 finishScreen = 1;
             }
         }
@@ -227,6 +227,7 @@ void UpdateGameplayScreen(void)
             EndGameResetUnits();
             endCondition = LOSE;
             finishScreen = 1;
+            feedbackTimer = 0;
         }
     }
     else
@@ -282,16 +283,6 @@ void DrawGameplayScreen(void)
                 Vector2 rotVec = Vector2Add(Vector2Scale(RotationToVector(player.rotation), 250), player.position);
                 DrawLineEx(player.position, rotVec, 50, BLUE);
 
-                // Draw shells
-                for (int i = 0; i < ammo.capacity; ++i)
-                {
-                    Shell shell = ammo.shells[i];
-                    if (shell.active)
-                    {
-                        DrawRectangle(shell.position.x, shell.position.y, 50, 50, BLACK);
-                    }
-                }
-
                 // Draw enemyUnits
                 for (int i = 0; i < enemyUnits.capacity; ++i)
                 {
@@ -310,8 +301,19 @@ void DrawGameplayScreen(void)
                     }
                 }
 
+                // Draw shells
+                for (int i = 0; i < ammo.capacity; ++i)
+                {
+                    Shell shell = ammo.shells[i];
+                    if (shell.active)
+                    {
+                        DrawRectangle(shell.position.x, shell.position.y, 50, 50, BLACK);
+                    }
+                }
+
                 // Draw camera borders
-                DrawRectangleLinesEx((Rectangle){worldCamera.target.x - 600, worldCamera.target.y - 600, 1200, 1200}, 50, DARKGRAY);
+                float offset = ((1 - worldCamera.zoom) * 3200);
+                DrawRectangleLinesEx((Rectangle){worldCamera.target.x - offset/2, worldCamera.target.y - offset/2, offset, offset}, 50, DARKGRAY);
             EndMode2D();
         EndTextureMode();
 
@@ -482,8 +484,8 @@ void DrawGui()
     GuiLabel((Rectangle){655, yOffset, 240, 25}, TextFormat("Friendlies Remaining: %d", FriendliesRemaining()));
     yOffset += 20;
     GuiLabel((Rectangle){655, yOffset, 240, 25}, TextFormat("Enemies Remaining: %d", EnemiesRemaining()));
-//    yOffset += 20;
-//    GuiLabel((Rectangle){655, yOffset, 240, 25}, TextFormat("Impact Iterator: %d", impactAnimations.iterator));
+    yOffset += 20;
+    GuiLabel((Rectangle){655, yOffset, 240, 25}, TextFormat("Wave: %d/5", wave));
 }
 
 void DrawSprite(int offsetX, int offsetY, Vector2 position, Vector2 origin, float rotation)

@@ -46,8 +46,6 @@ void InitEnemies(int wave)
 
 	for (int i = 0; i < count_for_wave; ++i)
 	{
-        int target = GetRandomValue(0, 2);
-
         Unit* unit = &enemyUnits.units[i];
         unit->origin = (Vector2){32, 32};
         unit->position = (Vector2){GetRandomValue(-2999, 2999), GetRandomValue(-5000, -3500)};
@@ -55,11 +53,25 @@ void InitEnemies(int wave)
         unit->rotation = 180;
         unit->color = WHITE;
         unit->movementSpeed = 2;
-        unit->moveTo = targetList[target];
         unit->active = true;
         unit->team = ENEMY_TEAM;
         unit->target = -1;
         unit->shotTimer = 0;
+
+        int target = GetRandomValue(0, 2);
+        switch (wave) {
+            case 1:
+                unit->moveTo = targetList[1];
+                break;
+            case 2:
+                if (i%2 == 0)
+                    unit->moveTo = targetList[0];
+                else
+                    unit->moveTo = targetList[2];
+                break;
+            default:
+                unit->moveTo = targetList[target];
+        }
 	}
 }
 
@@ -76,7 +88,7 @@ void InitFriendlies()
         unit->rotation = 270;
         unit->color = WHITE;
         unit->movementSpeed = 2;
-        unit->moveTo = Vector2Add(targetList[i%3], (Vector2){GetRandomValue(-300, 300), -290});
+        unit->moveTo = Vector2Add(targetList[i%3], (Vector2){GetRandomValue(-300, 300), GetRandomValue(-290, 0)});
         unit->active = true;
         unit->team = FRIENDLY_TEAM;
         unit->target = -1;

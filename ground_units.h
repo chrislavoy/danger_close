@@ -8,8 +8,8 @@
 #include "raylib.h"
 #include "player.h"
 
-#define MAX_ENEMIES 600
-#define MAX_FRIENDLIES 150
+#define MAX_ENEMIES 1000
+#define MAX_FRIENDLIES 300
 #define FRIENDLY_TEAM 0
 #define ENEMY_TEAM 1
 #define FRIENDLY_HIT_CHANCE 0.1f
