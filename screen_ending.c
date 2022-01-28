@@ -51,10 +51,10 @@ void InitEndingScreen(void)
 
     switch (endCondition) {
         case WIN:
-            endMessage = "You win!";
+            endMessage = "You won!";
             break;
         case PYRRHIC_WIN:
-            endMessage = "You win! But at what cost?";
+            endMessage = "You won! But at what cost?";
             break;
         case LOSE:
             endMessage = "You lost! Try again?";

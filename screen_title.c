@@ -26,12 +26,22 @@
 #include "raylib.h"
 #include "extras/raygui.h"
 #include "screens.h"
+#include "decals.h"
+#include "animations.h"
 
 //----------------------------------------------------------------------------------
 // Module Variables Definition (local)
 //----------------------------------------------------------------------------------
 static int framesCounter = 0;
 static int finishScreen = 0;
+
+extern ImpactDecals impactDecals;
+extern CorpseDecals corpseDecals;
+extern ImpactAnimations impactAnimations;
+extern Animation shootAnimation;
+
+float timer = 5.0f;
+float time_max = 5.0f;
 
 //----------------------------------------------------------------------------------
 // Title Screen Functions Definition
@@ -43,6 +53,18 @@ void InitTitleScreen(void)
     // TODO: Initialize TITLE screen variables here!
     framesCounter = 0;
     finishScreen = 0;
+
+    InitDecals();
+    InitAnimations();
+
+//    Vector2 pos1 = (Vector2){200, 200};
+    Vector2 pos1 = (Vector2){GetRandomValue(100, GetScreenWidth()-100), GetRandomValue(100, GetScreenHeight()-100)};
+    SpawnImpactAnimation(pos1);
+    SpawnDecal(IMPACT, pos1);
+
+//    Vector2 pos2 = (Vector2){700, 450};
+//    SpawnImpactAnimation(pos2);
+//    SpawnDecal(IMPACT, pos2);
 }
 
 // Title Screen Update logic
@@ -52,10 +74,22 @@ void UpdateTitleScreen(void)
 
     // Press enter or tap to change to GAMEPLAY screen
 //    if (IsKeyPressed(KEY_ENTER) || IsGestureDetected(GESTURE_TAP))
-    {
-        //finishScreen = 1;   // OPTIONS
+//    {
+//        finishScreen = 1;   // OPTIONS
 //        finishScreen = 2;   // GAMEPLAY
 //        PlaySound(fxCoin);
+//    }
+
+    UpdateAnimations(GetFrameTime());
+
+    timer -= GetFrameTime();
+
+    if (timer <= 0)
+    {
+        Vector2 randomPos = (Vector2){GetRandomValue(100, GetScreenWidth()-100), GetRandomValue(100, GetScreenHeight()-100)};
+        SpawnImpactAnimation(randomPos);
+        SpawnDecal(IMPACT, randomPos);
+        timer = time_max;
     }
 }
 
@@ -68,11 +102,15 @@ void DrawTitleScreen(void)
 //    DrawTextEx(font, "TITLE SCREEN", (Vector2){ 20, 10 }, font.baseSize*3, 4, DARKGREEN);
 //    DrawText("PRESS ENTER or TAP to JUMP to GAMEPLAY SCREEN", 120, 220, 20, DARKGREEN);
 
-    DrawText("DANGER CLOSE!", 30, 30, 50, BLACK);
-    // Draw base
-    DrawSprite(20, 7, (Vector2){500, 300}, (Vector2){32, 32}, 0);
-    // Draw turret
-    DrawSprite(19, 10, (Vector2){500, 300}, (Vector2){32, 38}, 0);
+    DrawTexture(worldTexture, 0, 0, WHITE);
+    DrawDecals();
+    DrawAnimations();
+
+    DrawText("DANGER CLOSE!", GetScreenWidth()/2 - (TextLength("DANGER CLOSE!")*15), 30, 50, BLACK);
+//    // Draw base
+//    DrawSprite(20, 7, (Vector2){500, 300}, (Vector2){32, 32}, 0);
+//    // Draw turret
+//    DrawSprite(19, 10, (Vector2){500, 300}, (Vector2){32, 38}, 0);
 
     if (GuiButton((Rectangle){GetScreenWidth()/2 - 50, 350, 100, 25}, "Options"))
         finishScreen = 1;
@@ -86,6 +124,7 @@ void DrawTitleScreen(void)
 void UnloadTitleScreen(void)
 {
     // TODO: Unload TITLE screen variables here!
+    ResetDecals();
 }
 
 // Title Screen should finish?
