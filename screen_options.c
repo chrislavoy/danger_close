@@ -55,10 +55,17 @@ void UpdateOptionsScreen(void)
 void DrawOptionsScreen(void)
 {
     // TODO: Draw OPTIONS screen here!
+    ClearBackground(BLACK);
+    DrawTexture(worldTexture, 0, 0, WHITE);
+    DrawRectangle(250, 150, 400, 200, RAYWHITE);
+    DrawText("Options", 410, 170, 20, BLACK);
+    masterVolume = GuiSlider((Rectangle){350, 210, 200, 25}, "Master Volume", ((void *) 0), masterVolume, 0, 1.0f);
+    musicVolume = GuiSlider((Rectangle){350, 250, 200, 25}, "Music Volume", ((void *) 0), musicVolume, 0, 1.0f);
+    if (GuiButton((Rectangle){350, 280, 200, 25}, "Back")) finishScreen = 1;
 
-    masterVolume = GuiSlider((Rectangle){350, 200, 200, 25}, "Master Volume", ((void *) 0), masterVolume, 0, 1.0f);
-    musicVolume = GuiSlider((Rectangle){350, 240, 200, 25}, "Music Volume", ((void *) 0), musicVolume, 0, 1.0f);
-    if (GuiButton((Rectangle){350, 270, 200, 25}, "Back")) finishScreen = 1;
+    DrawRectangle(250, 380, 400, 200, RAYWHITE);
+    DrawText("Controls", 410, 400, 20, BLACK);
+    DrawText("Left & Right - Adjust Angle\nUp & Down - Adjust Range\nSpace - Fire\nEsc - Pause/Unpause", 300, 430, 20, BLACK);
 
     SetMasterVolume(masterVolume);
     SetMusicVolume(music, musicVolume);

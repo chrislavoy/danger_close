@@ -160,6 +160,12 @@ void UpdateGameplayScreen(void)
         }
 #endif
 
+        if (IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A)) player.targetRotation -= 5 * dt;
+        if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D)) player.targetRotation += 5 * dt;
+        if (IsKeyDown(KEY_UP) || IsKeyDown(KEY_W)) ChangeRange(500 * dt);
+        if (IsKeyDown(KEY_DOWN) || IsKeyDown(KEY_S)) ChangeRange(-500 * dt);
+        if (IsKeyPressed(KEY_SPACE)) Shoot();
+
 //        if (IsGestureDetected(GESTURE_DRAG))
 //        {
 //            worldCamera.target = Vector2Add(worldCamera.target, Vector2Scale(GetGestureDragVector(), -1/worldCamera.zoom));
@@ -242,8 +248,12 @@ void DrawGameplayScreen(void)
         DrawText("Pause", screenWidth/2 - (TextLength("Pause")*8), 100, 40, WHITE);
         masterVolume = GuiSlider((Rectangle){screenWidth/2-100, 200, 200, 25}, "Master Volume", ((void *) 0), masterVolume, 0, 1.0f);
         musicVolume = GuiSlider((Rectangle){screenWidth/2-100, 240, 200, 25}, "Music Volume", ((void *) 0), musicVolume, 0, 1.0f);
-        if (GuiButton((Rectangle){screenWidth/2-50, 350, 100, 25}, "Unpause")) paused = false;
-        if (GuiButton((Rectangle){screenWidth/2-50, 380, 100, 25}, "Quit"))
+
+        DrawText("Controls", 410, 300, 20, WHITE);
+        DrawText("Left & Right - Adjust Angle\nUp & Down - Adjust Range\nSpace - Fire\nEsc - Pause/Unpause", 300, 330, 20, WHITE);
+
+        if (GuiButton((Rectangle){screenWidth/2-50, 450, 100, 25}, "Unpause")) paused = false;
+        if (GuiButton((Rectangle){screenWidth/2-50, 480, 100, 25}, "Quit"))
         {
             finishScreen = 1;
             endCondition = LOSE;

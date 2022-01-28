@@ -110,15 +110,15 @@ void DrawTitleScreen(void)
     DrawDecals();
     DrawAnimations();
 
-    DrawText("DANGER CLOSE!", GetScreenWidth()/2 - (TextLength("DANGER CLOSE!")*15), 30, 50, BLACK);
+    DrawText("DANGER CLOSE!", GetScreenWidth()/2 - (TextLength("DANGER CLOSE!")*15), 130, 50, BLACK);
 //    // Draw base
 //    DrawSprite(20, 7, (Vector2){500, 300}, (Vector2){32, 32}, 0);
 //    // Draw turret
 //    DrawSprite(19, 10, (Vector2){500, 300}, (Vector2){32, 38}, 0);
 
-    if (GuiButton((Rectangle){GetScreenWidth()/2 - 50, 350, 100, 25}, "Options"))
+    if (GuiButton((Rectangle){GetScreenWidth()/2 - 50, 250, 100, 25}, "Options"))
         finishScreen = 1;
-    if (GuiButton((Rectangle){GetScreenWidth()/2 - 50, 380, 100, 25}, "Play"))
+    if (GuiButton((Rectangle){GetScreenWidth()/2 - 50, 280, 100, 25}, "Play"))
         finishScreen = 2;
 //    if (GuiButton((Rectangle){350, 210, 100, 25}, "Quit"))
 //        finishScreen = 0;
