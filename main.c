@@ -28,16 +28,21 @@ Music music = { 0 };
 Sound fxShoot = { 0 };
 Sound fxImpact = { 0 };
 Sound fxUnitShoot = { 0 };
-Texture2D spriteSheet;
-Texture2D worldTexture;
-EndCondition endCondition;
+Texture2D spriteSheet = { 0 };
+Texture2D worldTexture = { 0 };
+Texture2D corpseTexture = { 0 };
+Texture2D smokeTexture = { 0 };
+EndCondition endCondition = { 0 };
 
 // Global Variables Definition
 int screenWidth = 900;
 int screenHeight = 675;
-float musicVolume = 1.0f;
+float musicVolume = 0.3f;
 float masterVolume = 1.0f;
 int score = 0;
+int enemiesKilled = 0;
+int friendliesKilled = 0;
+int shellsFired = 0;
 
 // Required variables to manage screen transitions (fade-in, fade-out)
 static float transAlpha = 0.0f;
@@ -75,6 +80,12 @@ int main()
 
 	worldTexture = LoadTexture("assets/DangerClose.png");
 	SetTextureFilter(worldTexture, TEXTURE_FILTER_ANISOTROPIC_16X);
+
+    corpseTexture = LoadTexture("assets/dirt_01.png");
+    SetTextureFilter(corpseTexture, TEXTURE_FILTER_ANISOTROPIC_16X);
+
+    smokeTexture = LoadTexture("assets/smoke_07.png");
+    SetTextureFilter(smokeTexture, TEXTURE_FILTER_ANISOTROPIC_16X);
 
     SetMusicVolume(music, musicVolume);
     PlayMusicStream(music);
@@ -120,6 +131,8 @@ int main()
     UnloadSound(fxUnitShoot);
 	UnloadTexture(spriteSheet);
 	UnloadTexture(worldTexture);
+    UnloadTexture(corpseTexture);
+    UnloadTexture(smokeTexture);
 
     // De-Initialization
     CloseAudioDevice();

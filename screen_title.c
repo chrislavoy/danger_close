@@ -74,9 +74,9 @@ void DrawTitleScreen(void)
     // Draw turret
     DrawSprite(19, 10, (Vector2){500, 300}, (Vector2){32, 38}, 0);
 
-    if (GuiButton((Rectangle){350, 350, 100, 25}, "Options"))
+    if (GuiButton((Rectangle){GetScreenWidth()/2 - 50, 350, 100, 25}, "Options"))
         finishScreen = 1;
-    if (GuiButton((Rectangle){350, 380, 100, 25}, "Play"))
+    if (GuiButton((Rectangle){GetScreenWidth()/2 - 50, 380, 100, 25}, "Play"))
         finishScreen = 2;
 //    if (GuiButton((Rectangle){350, 210, 100, 25}, "Quit"))
 //        finishScreen = 0;

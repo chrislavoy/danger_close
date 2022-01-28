@@ -52,6 +52,9 @@ extern float masterVolume;
 extern float musicVolume;
 extern EndCondition endCondition;
 extern int score;
+extern int enemiesKilled;
+extern int friendliesKilled;
+extern int shellsFired;
 
 #ifdef __cplusplus
 extern "C" {            // Prevents name mangling of functions
@@ -111,6 +114,7 @@ int FinishEndingScreen(void);
 // Utility Functions
 //----------------------------------------------------------------------------------
 void DrawSprite(int, int, Vector2, Vector2, float);
+void DrawSpriteColor(int, int, Vector2, Vector2, float, Color);
 
 #ifdef __cplusplus
 }

@@ -30,6 +30,7 @@
 #include "player.h"
 #include "ammo.h"
 #include "ground_units.h"
+#include "decals.h"
 
 #define NULL ((void *)0)
 #define RELOAD_TIME 2.0f
@@ -60,7 +61,10 @@ int guiWidth = 250;
 char feedbackMessage[50];
 bool showMessage = false;
 Rectangle radarRect = (Rectangle){776, 117, 230, 230};
-int wave = 0;
+int wave = 1;
+
+ImpactDecals impactDecals;
+CorpseDecals corpseDecals;
 
 //----------------------------------------------------------------------------------
 // Gameplay Screen Functions Definition
@@ -78,11 +82,15 @@ void InitGameplayScreen(void)
 {
     // TODO: Initialize GAMEPLAY screen variables here!
     score = 0;
+    enemiesKilled = 0;
+    friendliesKilled = 0;
+    wave = 1;
     framesCounter = 0;
     finishScreen = 0;
     InitAmmo();
     InitPlayer();
-	InitUnits();
+	InitUnits(wave);
+    InitDecals();
 
 	mainRenderTexture = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
 	SetTextureFilter(mainRenderTexture.texture, TEXTURE_FILTER_ANISOTROPIC_16X);
@@ -100,8 +108,9 @@ void InitGameplayScreen(void)
     mapCamera.rotation = 0;
     mapCamera.zoom = 0.1f;
 
-    wave++;
-    SetMessage(TextFormat("Wave: %d", wave));
+    const int count_for_wave = wave * 200;
+
+    SetMessage(TextFormat("Wave: %d\n%d Enemies incoming!", wave, count_for_wave));
 }
 
 // Gameplay Screen Update logic
@@ -145,10 +154,12 @@ void UpdateGameplayScreen(void)
     {
         if (wave < 3)
         {
-            ResetEnemies();
+            ResetEnemies(wave);
             ResetFriendlies();
             wave++;
-            SetMessage(TextFormat("Wave: %d", wave));
+            const int count_for_wave = wave * 200;
+            feedbackTimer = 0;
+            SetMessage(TextFormat("Wave: %d\n%d Enemies incoming!", wave, count_for_wave));
         }
         else
         {
@@ -161,12 +172,16 @@ void UpdateGameplayScreen(void)
                 endCondition = WIN;
             }
 
+            EndGameResetUnits();
+            ResetDecals();
+
             finishScreen = 1;
         }
     }
 
     if (!player.alive)
     {
+        EndGameResetUnits();
         endCondition = LOSE;
         finishScreen = 1;
     }
@@ -222,7 +237,7 @@ void DrawGameplayScreen(void)
             }
 
             // Draw camera borders
-            DrawRectangleLinesEx((Rectangle){worldCamera.target.x - 450, worldCamera.target.y - 450, 900, 900}, 50, DARKGRAY);
+            DrawRectangleLinesEx((Rectangle){worldCamera.target.x - 600, worldCamera.target.y - 600, 1200, 1200}, 50, DARKGRAY);
         EndMode2D();
     EndTextureMode();
 
@@ -230,6 +245,7 @@ void DrawGameplayScreen(void)
 		BeginMode2D(worldCamera);
 			ClearBackground(BLACK);
 			DrawTextureEx(worldTexture, (Vector2){-3200, -3200}, 0, 1, WHITE);
+            DrawDecals();
 			DrawAmmo();
 			DrawPlayer();
 			DrawUnits();
@@ -271,6 +287,7 @@ void Shoot()
 
         SetSoundPitch(fxShoot, 1);
         PlaySound(fxShoot);
+        shellsFired++;
 
         ammo.shells[ammo.shellIterator].rotation = player.rotation;
         ammo.shells[ammo.shellIterator].position = player.position;
@@ -289,18 +306,24 @@ void Shoot()
 
 void Explode(int shellIndex)
 {
-    float volume = 1 - ammo.shells[shellIndex].range / (MAX_FIRE_RANGE + 200);
+    Shell* shell = &ammo.shells[shellIndex];
+    float volume = 1 - Vector2Distance(shell->position, worldCamera.target) / 3000;//1 - ammo.shells[shellIndex].range / (MAX_FIRE_RANGE + 200);
+    TraceLog(LOG_INFO, TextFormat("Volume: %f", volume));
     SetSoundVolume(fxImpact, volume);
     PlaySoundMulti(fxImpact);
-    ammo.shells[shellIndex].active = false;
+    SpawnDecal(IMPACT, shell->position);
+    shell->active = false;
 
-    int enemiesHit =    DamageUnitsInsideArea(ammo.shells[shellIndex].position, ammo.shells[shellIndex].blastRadius, ENEMY_TEAM);
-    int friendliesHit = DamageUnitsInsideArea(ammo.shells[shellIndex].position, ammo.shells[shellIndex].blastRadius, FRIENDLY_TEAM);
+    int enemiesHit =    DamageUnitsInsideArea(shell->position, shell->blastRadius, ENEMY_TEAM);
+    int friendliesHit = DamageUnitsInsideArea(shell->position, shell->blastRadius, FRIENDLY_TEAM);
 
     if (friendliesHit > 0)
         SetMessage("Friendly fire!");
     else if (enemiesHit > 5)
 		SetMessage("Good hit!");
+
+    enemiesKilled += enemiesHit;
+    friendliesKilled += friendliesHit;
 
     score += (enemiesHit * 100) - (friendliesHit * 200);
 }
@@ -342,22 +365,25 @@ void DrawGui()
         WHITE);
 
     // Range controls
-    player.fireRange = GuiSlider((Rectangle){705, 250, 150, 25}, "Range", TextFormat("%.2f", player.fireRange), player.fireRange, MIN_FIRE_RANGE, MAX_FIRE_RANGE);
+    GuiLabel((Rectangle){655, 240, 150, 25}, TextFormat("Range: %.2f", player.fireRange));
+    player.fireRange = GuiSlider((Rectangle){655, 270, 240, 25}, NULL, NULL, player.fireRange, MIN_FIRE_RANGE, MAX_FIRE_RANGE);
 
     // Rotation controls
-    player.targetRotation = GuiSlider((Rectangle){705, 280, 150, 25}, "Rotation", TextFormat("%.2f", player.targetRotation), player.targetRotation, -MAX_ROTATION, MAX_ROTATION);
+    GuiLabel((Rectangle){655, 300, 150, 25}, TextFormat("Rotation: %.2f", player.targetRotation));
+    player.targetRotation = GuiSlider((Rectangle){655, 330, 240, 25}, NULL, NULL, player.targetRotation, -MAX_ROTATION, MAX_ROTATION);
+
+    // Player health bar
+    GuiLabel((Rectangle){655, 370, 150, 25}, TextFormat("Health: %.2f", player.health));
+    GuiProgressBar((Rectangle){655, 400, 240, 15}, NULL, NULL, player.health, 0, 100);
 
     // Reload bar
-    GuiProgressBar((Rectangle){690, 330, 175, 15}, NULL, NULL, RELOAD_TIME - player.reloadTimer, 0, RELOAD_TIME);
+    GuiProgressBar((Rectangle){655, 450, 240, 15}, NULL, NULL, RELOAD_TIME - player.reloadTimer, 0, RELOAD_TIME);
 
     // Fire button
-    if (GuiButton((Rectangle){690, 350, 175, 25}, "Fire"))
+    if (GuiButton((Rectangle){655, 470, 240, 50}, "Fire"))
     {
         Shoot();
     }
-
-    // Player health bar
-    GuiProgressBar((Rectangle){690, 380, 175, 15}, NULL, NULL, player.health, 0, 100);
 }
 
 void DrawSprite(int offsetX, int offsetY, Vector2 position, Vector2 origin, float rotation)
@@ -365,6 +391,13 @@ void DrawSprite(int offsetX, int offsetY, Vector2 position, Vector2 origin, floa
     Rectangle source = (Rectangle){offsetX*64, offsetY*64, 64, 64};
     Rectangle dest = (Rectangle){position.x, position.y, 64, 64};
     DrawTexturePro(spriteSheet, source, dest, origin, rotation, WHITE);
+}
+
+void DrawSpriteColor(int offsetX, int offsetY, Vector2 position, Vector2 origin, float rotation, Color color)
+{
+    Rectangle source = (Rectangle){offsetX*64, offsetY*64, 64, 64};
+    Rectangle dest = (Rectangle){position.x, position.y, 64, 64};
+    DrawTexturePro(spriteSheet, source, dest, origin, rotation, color);
 }
 
 Vector2 RotationToVector(float rotation){

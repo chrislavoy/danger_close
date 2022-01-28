@@ -40,7 +40,7 @@ void UpdateAmmo(float dt, Vector2 playerPosition)
             }
             else
             {
-                ammo.shells[i].position = Vector2Add(ammo.shells[i].position, Vector2Scale(ammo.shells[i].velocity, 400 * dt));
+                ammo.shells[i].position = Vector2Add(ammo.shells[i].position, Vector2Scale(ammo.shells[i].velocity, AMMO_SPEED * dt));
                 ammo.shells[i].rectangle = (Rectangle){ammo.shells[i].position.x, ammo.shells[i].position.y, 64, 64};
             }
         }

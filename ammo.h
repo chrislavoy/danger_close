@@ -7,7 +7,8 @@
 
 #include "raylib.h"
 
-#define MAX_SHELLS 5
+#define MAX_SHELLS 10
+#define AMMO_SPEED 500
 
 typedef struct Shell {
     Vector2 origin;
