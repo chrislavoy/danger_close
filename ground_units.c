@@ -13,13 +13,11 @@ int EnemyUnitInRange(int, Vector2, float);
 void AttackPlayer();
 void GetNextObjective(Unit*);
 int GetNearbyTarget(Vector2);
+void UpdateFriendlyUnits();
+void UpdateEnemyUnits();
 
 // Also declared in screens.h, implemented in screen_gameplay.c
 void DrawSprite(int offsetX, int offsetY, Vector2 position, Vector2 origin, float rotation);
-
-void UpdateFriendlyUnits();
-
-void UpdateEnemyUnits();
 
 Vector2 enemyTargetPos1a = (Vector2){-2250, -150};
 Vector2 enemyTargetPos1b = (Vector2){0, -150};
@@ -38,7 +36,6 @@ void InitUnits(int wave)
     targetList[2] = enemyTargetPos1c;
 
     InitEnemies(wave);
-
 	InitFriendlies();
 }
 
@@ -53,13 +50,12 @@ void InitEnemies(int wave)
 
         Unit* unit = &enemyUnits.units[i];
         unit->origin = (Vector2){32, 32};
-//        unit->position = (Vector2){GetRandomValue(-2999, 2999), GetRandomValue(-6000, -5500)};
         unit->position = (Vector2){GetRandomValue(-2999, 2999), GetRandomValue(-5000, -3500)};
         unit->rectangle = (Rectangle) {0, 0, 64, 64};
         unit->rotation = 180;
         unit->color = WHITE;
         unit->movementSpeed = 2;
-        unit->moveTo = targetList[target];  //(Vector2){unit->position.x, 3000};
+        unit->moveTo = targetList[target];
         unit->active = true;
         unit->team = ENEMY_TEAM;
         unit->target = -1;
@@ -75,7 +71,7 @@ void InitFriendlies()
 	{
         Unit* unit = &friendlyUnits.units[i];
         unit->origin = (Vector2){32, 32};
-        unit->position = (Vector2){0, 600};//Vector2Add(targetList[i%3], (Vector2){GetRandomValue(-300, 300), GetRandomValue(-290, 300)});
+        unit->position = (Vector2){0, 600};
         unit->rectangle = (Rectangle) {0, 0, 64, 64};
         unit->rotation = 270;
         unit->color = WHITE;
