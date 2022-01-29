@@ -482,6 +482,8 @@ void DrawGui()
     }
     yOffset += 50;
 
+    GuiLabel((Rectangle){655, yOffset, 240, 25}, TextFormat("Ammo: %d/5", ammo.count));
+    yOffset += 20;
     GuiLabel((Rectangle){655, yOffset, 240, 25}, TextFormat("Score: %d", score));
     yOffset += 20;
     GuiLabel((Rectangle){655, yOffset, 240, 25}, TextFormat("Friendlies Remaining: %d", FriendliesRemaining()));

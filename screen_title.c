@@ -40,7 +40,7 @@ extern CorpseDecals corpseDecals;
 extern ImpactAnimations impactAnimations;
 extern Animation shootAnimation;
 
-float timer = 5.0f;
+float timer = 2.0f;
 float time_max = 5.0f;
 
 //----------------------------------------------------------------------------------
@@ -58,11 +58,11 @@ void InitTitleScreen(void)
     InitAnimations();
 
 //    Vector2 pos1 = (Vector2){200, 200};
-    Vector2 pos1 = (Vector2){GetRandomValue(100, GetScreenWidth()-100), GetRandomValue(100, GetScreenHeight()-100)};
-    SpawnImpactAnimation(pos1);
-    SpawnDecal(IMPACT, pos1);
-    SetSoundVolume(fxImpact, 0.1f);
-    PlaySound(fxImpact);
+//    Vector2 pos1 = (Vector2){GetRandomValue(100, GetScreenWidth()-100), GetRandomValue(100, GetScreenHeight()-100)};
+//    SpawnImpactAnimation(pos1);
+//    SpawnDecal(IMPACT, pos1);
+//    SetSoundVolume(fxImpact, 0.1f);
+//    PlaySound(fxImpact);
 
 //    Vector2 pos2 = (Vector2){700, 450};
 //    SpawnImpactAnimation(pos2);
