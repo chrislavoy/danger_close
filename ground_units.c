@@ -242,7 +242,7 @@ void DrawUnits()
     for (int i = 0; i < enemyUnits.capacity; ++i)
     {
         unit = &enemyUnits.units[i];
-        if (unit->active && PointInsideRect(unit->position, (Rectangle){-3200, -3200, 3200, 3200}))
+        if (unit->active && PointInsideRect(unit->position, (Rectangle){-3200, -3200, 6400, 6400}))
         {
             DrawSprite(16, 10, unit->position, unit->origin, unit->rotation);
             DrawSpriteColor(16, 10, unit->position, unit->origin, unit->rotation, GRAY);
@@ -256,7 +256,7 @@ void DrawUnits()
 	for (int i = 0; i < friendlyUnits.capacity; ++i)
 	{
         unit = &friendlyUnits.units[i];
-		if (unit->active && PointInsideRect(unit->position, (Rectangle){-3200, -3200, 3200, 3200}))
+		if (unit->active && PointInsideRect(unit->position, (Rectangle){-3200, -3200, 6400, 6400}))
 		{
 			DrawSprite(15, 10, unit->position, unit->origin, unit->rotation);
             if (unit->shotTimer >= SHOT_TIMER_MAX - 0.15f)
