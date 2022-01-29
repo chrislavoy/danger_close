@@ -77,6 +77,8 @@ void SpawnImpactAnimation(Vector2 position)
     for (int i = 0; i < animation->elementCount; ++i)
     {
         animation->elements[i].position = position;
+        animation->elements[i].origin = (Vector2){32, 32};
+        animation->elements[i].rotation = (float)GetRandomValue(0, 359);
     }
 
     impactAnimations.iterator++;
@@ -93,6 +95,7 @@ void StartShootAnimation(Vector2 position, float rotation)
     for (int i = 0; i < shootAnimation.elementCount; ++i)
     {
         shootAnimation.elements[i].position = position;
+        shootAnimation.elements[i].rotation = (float)GetRandomValue(0, 359);
     }
 }
 
