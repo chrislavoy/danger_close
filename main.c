@@ -98,7 +98,7 @@ int main()
     SetMusicVolume(music, musicVolume);
     PlayMusicStream(music);
 
-    currentScreen = ENDING;
+    currentScreen = LOGO;
 
     switch (currentScreen)
     {
