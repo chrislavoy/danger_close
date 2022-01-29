@@ -13,6 +13,8 @@ void DrawSprite(int offsetX, int offsetY, Vector2 position, Vector2 origin, floa
 void UpdateRotation(float);
 float Wrap(float, float, float);
 
+extern Sound fxReload;
+
 // Private variable declaration
 bool CCW = false;
 
@@ -61,7 +63,11 @@ void UpdatePlayer(float dt)
 //    }
 
     if (player.reloadTimer > 0) player.reloadTimer -= dt;
-    if (player.reloadTimer < 0) player.reloadTimer = 0;
+    if (player.reloadTimer < 0)
+    {
+        player.reloadTimer = 0;
+        StopSound(fxReload);
+    }
 
     if (player.shotTimer > 0) player.shotTimer -= dt;
     if (player.shotTimer < 0) player.shotTimer = 0;

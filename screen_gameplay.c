@@ -380,6 +380,8 @@ void Shoot()
 
         if (ShotsRemaining() == 0)
         {
+            SetSoundVolume(fxReload, 0.5f);
+            PlaySound(fxReload);
             player.reloadTimer = RELOAD_TIME;
             ReloadAmmo();
         }
@@ -414,6 +416,8 @@ void SetMessage(const char* message)
 {
     if (feedbackTimer <= 0)
     {
+        SetSoundVolume(fxRadio, 0.5f);
+        PlaySound(fxRadio);
 	    TextCopy(feedbackMessage, message);
         showMessage = true;
         feedbackTimer = TIME_BETWEEN_FEEDBACK;

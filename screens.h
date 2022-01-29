@@ -41,6 +41,8 @@ extern Music music;
 extern Sound fxShoot;
 extern Sound fxImpact;
 extern Sound fxUnitShoot;
+extern Sound fxRadio;
+extern Sound fxReload;
 extern Texture2D spriteSheet;
 extern Texture2D worldTexture;
 extern float masterVolume;

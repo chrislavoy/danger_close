@@ -328,7 +328,7 @@ int EnemyUnitInRange(int team, Vector2 position, float range)
 
 void AttackPlayer()
 {
-    SetSoundVolume(fxUnitShoot, 0.15f);
+    SetSoundVolume(fxUnitShoot, 0.1f);
     PlaySoundMulti(fxUnitShoot);
 
     if((float)GetRandomValue(0, 100) / 100.0f > (1.0f - ENEMY_HIT_CHANCE))
