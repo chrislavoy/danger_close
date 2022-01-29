@@ -8,11 +8,12 @@
 // Also declared in screens.h, implemented in screen_gameplay.c
 void Explode(int);
 void DrawSprite(int offsetX, int offsetY, Vector2 position, Vector2 origin, float rotation);
+Vector2 RotationToVector(float);
 
 void InitAmmo(void)
 {
     ammo.capacity = MAX_SHELLS;
-//    ammo.count = MAX_SHELLS;
+    ammo.count = 5;
 
     for (int i = 0; i < ammo.capacity; ++i)
     {
@@ -47,6 +48,29 @@ void UpdateAmmo(float dt, Vector2 playerPosition)
     }
 }
 
+void FireShot(Vector2 playerPosition, float playerRotation, float playerFireRange)
+{
+    ammo.count--;
+
+    ammo.shells[ammo.shellIterator].rotation = playerRotation;
+    ammo.shells[ammo.shellIterator].position = playerPosition;
+    ammo.shells[ammo.shellIterator].active = true;
+    ammo.shells[ammo.shellIterator].range = playerFireRange - (float)GetRandomValue(-100, 100);
+    ammo.shells[ammo.shellIterator].velocity = RotationToVector(ammo.shells[ammo.shellIterator].rotation);
+    Vector2 variance = (Vector2){(float)GetRandomValue(-5, 5)/100, (float)GetRandomValue(-5, 5)/100};
+    ammo.shells[ammo.shellIterator].velocity = Vector2Add(ammo.shells[ammo.shellIterator].velocity, variance);
+
+    ammo.shellIterator++;
+    if (ammo.shellIterator == ammo.capacity)
+        ammo.shellIterator = 0;
+}
+
+void ReloadAmmo()
+{
+    ammo.count = 5;
+//    ammo.shellIterator = 0;
+}
+
 void DrawAmmo()
 {
     for (int i = 0; i < ammo.capacity; ++i)
@@ -57,4 +81,8 @@ void DrawAmmo()
             DrawSprite(19, 11, shell.position, shell.origin, shell.rotation);
         }
     }
+}
+
+int ShotsRemaining() {
+    return ammo.count;
 }

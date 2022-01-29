@@ -26,6 +26,7 @@ void InitPlayer(void)
     player.color = WHITE;
     player.fireRange = MAX_FIRE_RANGE;
     player.reloadTimer = 0;
+    player.shotTimer = 0;
     player.health = 100.0f;
     player.alive = true;
 }
@@ -59,11 +60,11 @@ void UpdatePlayer(float dt)
 //        Shoot();
 //    }
 
-    if (player.reloadTimer > 0)
-        player.reloadTimer -= dt;
+    if (player.reloadTimer > 0) player.reloadTimer -= dt;
+    if (player.reloadTimer < 0) player.reloadTimer = 0;
 
-    if (player.reloadTimer < 0)
-        player.reloadTimer = 0;
+    if (player.shotTimer > 0) player.shotTimer -= dt;
+    if (player.shotTimer < 0) player.shotTimer = 0;
 
     if (player.health <= 0)
         player.alive = false;

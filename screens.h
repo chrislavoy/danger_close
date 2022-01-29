@@ -50,6 +50,7 @@ extern int score;
 extern int enemiesKilled;
 extern int friendliesKilled;
 extern int shellsFired;
+extern bool ezAiming;
 
 #ifdef __cplusplus
 extern "C" {            // Prevents name mangling of functions

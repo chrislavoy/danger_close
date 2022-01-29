@@ -43,6 +43,7 @@ int score = 0;
 int enemiesKilled = 0;
 int friendliesKilled = 0;
 int shellsFired = 0;
+bool ezAiming = 0;
 
 // Required variables to manage screen transitions (fade-in, fade-out)
 static float transAlpha = 0.0f;

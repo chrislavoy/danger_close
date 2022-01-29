@@ -51,7 +51,7 @@ void InitShootAnimation(void)
 {
     shootAnimation.position = (Vector2){0, 0};
     shootAnimation.runtime = 0;
-    shootAnimation.maxRuntime = 2.0f;
+    shootAnimation.maxRuntime = 0.5f;
     shootAnimation.elementCount = 5;
     for (int i = 0; i < shootAnimation.elementCount; ++i)
     {
@@ -89,6 +89,7 @@ void StartShootAnimation(Vector2 position, float rotation)
 {
     shootAnimation.active = true;
     shootAnimation.position = position;
+    shootAnimation.runtime = 0;
     for (int i = 0; i < shootAnimation.elementCount; ++i)
     {
         shootAnimation.elements[i].position = position;
@@ -133,7 +134,7 @@ void UpdateShootAnimation(float dt)
         for (int i = 0; i < shootAnimation.elementCount; ++i)
         {
             Element* element = &shootAnimation.elements[i];
-            element->position = Vector2Add(element->position, Vector2Scale(element->velocity, 20 * dt));
+            element->position = Vector2Add(element->position, Vector2Scale(element->velocity, 50 * dt));
             element->rotation += 5 * dt;
         }
 

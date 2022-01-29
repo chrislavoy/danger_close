@@ -57,11 +57,12 @@ void DrawOptionsScreen(void)
     // TODO: Draw OPTIONS screen here!
     ClearBackground(BLACK);
     DrawTexture(worldTexture, 0, 0, WHITE);
-    DrawRectangle(250, 150, 400, 200, RAYWHITE);
+    DrawRectangle(250, 150, 400, 220, RAYWHITE);
     DrawText("Options", 410, 170, 20, BLACK);
     masterVolume = GuiSlider((Rectangle){350, 210, 200, 25}, "Master Volume", ((void *) 0), masterVolume, 0, 1.0f);
     musicVolume = GuiSlider((Rectangle){350, 250, 200, 25}, "Music Volume", ((void *) 0), musicVolume, 0, 1.0f);
-    if (GuiButton((Rectangle){350, 280, 200, 25}, "Back")) finishScreen = 1;
+    ezAiming = GuiCheckBox((Rectangle){350, 285, 25, 25}, "Bigger Direction Indicator", ezAiming);
+    if (GuiButton((Rectangle){350, 320, 200, 25}, "Back")) finishScreen = 1;
 
     DrawRectangle(250, 380, 400, 200, RAYWHITE);
     DrawText("Controls", 410, 400, 20, BLACK);

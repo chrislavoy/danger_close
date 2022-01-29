@@ -34,7 +34,8 @@
 #include "animations.h"
 
 #define NULL ((void *)0)
-#define RELOAD_TIME 2.0f
+#define RELOAD_TIME 3.5f
+#define SHOT_TIME 0.5f
 #define MAX_ROTATION 45.0f
 
 //----------------------------------------------------------------------------------
@@ -57,7 +58,6 @@ Ammo ammo;
 Units enemyUnits;
 Units friendlyUnits;
 Vector2 fireTargetPos = (Vector2){0, 0};
-Vector2 variance = (Vector2){0, 0};
 int guiWidth = 250;
 char feedbackMessage[50];
 bool showMessage = false;
@@ -165,6 +165,7 @@ void UpdateGameplayScreen(void)
         if (IsKeyDown(KEY_UP) || IsKeyDown(KEY_W)) ChangeRange(500 * dt);
         if (IsKeyDown(KEY_DOWN) || IsKeyDown(KEY_S)) ChangeRange(-500 * dt);
         if (IsKeyDown(KEY_SPACE) || IsKeyDown(KEY_LEFT_CONTROL) || IsKeyDown(KEY_RIGHT_CONTROL)) Shoot();
+//        if (IsKeyDown(KEY_R)) Reload();
 
 //        if (IsGestureDetected(GESTURE_DRAG))
 //        {
@@ -249,12 +250,13 @@ void DrawGameplayScreen(void)
         DrawText("Pause", screenWidth/2 - (TextLength("Pause")*8), 100, 40, WHITE);
         masterVolume = GuiSlider((Rectangle){screenWidth/2-100, 200, 200, 25}, "Master Volume", ((void *) 0), masterVolume, 0, 1.0f);
         musicVolume = GuiSlider((Rectangle){screenWidth/2-100, 240, 200, 25}, "Music Volume", ((void *) 0), musicVolume, 0, 1.0f);
+        ezAiming = GuiCheckBox((Rectangle){screenWidth/2-100, 275, 25, 25}, "Bigger Direction Indicator", ezAiming);
 
-        DrawText("Controls", 410, 300, 20, WHITE);
-        DrawText("A & D | Left & Right - Adjust Angle\nW & S | Up & Down - Adjust Range\nSpace | Left Ctrl | Right Ctrl - Fire\nEsc - Pause/Unpause", 270, 330, 20, WHITE);
+        DrawText("Controls", 410, 320, 20, WHITE);
+        DrawText("A & D | Left & Right - Adjust Angle\nW & S | Up & Down - Adjust Range\nSpace | Left Ctrl | Right Ctrl - Fire\nEsc - Pause/Unpause", 270, 360, 20, WHITE);
 
-        if (GuiButton((Rectangle){screenWidth/2-50, 450, 100, 25}, "Unpause")) paused = false;
-        if (GuiButton((Rectangle){screenWidth/2-50, 480, 100, 25}, "Quit"))
+        if (GuiButton((Rectangle){screenWidth/2-50, 500, 100, 25}, "Unpause")) paused = false;
+        if (GuiButton((Rectangle){screenWidth/2-50, 530, 100, 25}, "Quit"))
         {
             finishScreen = 1;
             endCondition = LOSE;
@@ -274,21 +276,17 @@ void DrawGameplayScreen(void)
                 DrawTextureEx(worldTexture, (Vector2){-3200, -3200}, 0, 1, WHITE);
 
                 // Draw player
-                DrawRectangle(player.position.x - 25, player.position.y - 25, 50, 50, BLUE);
+                DrawRectangle(player.position.x - 50, player.position.y - 50, 100, 100, BLUE);
 
                 // Draw range
-                DrawCircleSector(player.position, player.fireRange, 180-MAX_ROTATION, 180+MAX_ROTATION, 0, Fade(MAROON, 0.4f));
-
-                // Draw player rotation
-                Vector2 rotVec = Vector2Add(Vector2Scale(RotationToVector(player.rotation), 250), player.position);
-                DrawLineEx(player.position, rotVec, 50, BLUE);
+                DrawCircleSector(Vector2SubtractValue(player.position, 50), player.fireRange, 180-MAX_ROTATION, 180+MAX_ROTATION, 0, Fade(MAROON, 0.4f));
 
                 // Draw enemyUnits
                 for (int i = 0; i < enemyUnits.capacity; ++i)
                 {
                     if (enemyUnits.units[i].active)
                     {
-                        DrawRectangle(enemyUnits.units[i].position.x, enemyUnits.units[i].position.y, 50, 50, RED);
+                        DrawRectangle(enemyUnits.units[i].position.x, enemyUnits.units[i].position.y, 100, 100, RED);
                     }
                 }
 
@@ -297,9 +295,16 @@ void DrawGameplayScreen(void)
                 {
                     if (friendlyUnits.units[i].active)
                     {
-                        DrawRectangle(friendlyUnits.units[i].position.x, friendlyUnits.units[i].position.y, 50, 50, BLUE);
+                        DrawRectangle(friendlyUnits.units[i].position.x, friendlyUnits.units[i].position.y, 100, 100, BLUE);
                     }
                 }
+
+                // Draw player rotation
+                int rangeLength = (ezAiming) ? player.fireRange : 1000;
+                Vector2 rotVec = Vector2Add(Vector2Scale(RotationToVector(player.rotation), rangeLength), player.position);
+                DrawLineEx(player.position, rotVec, 75, BLUE);
+
+
 
                 // Draw shells
                 for (int i = 0; i < ammo.capacity; ++i)
@@ -307,7 +312,7 @@ void DrawGameplayScreen(void)
                     Shell shell = ammo.shells[i];
                     if (shell.active)
                     {
-                        DrawRectangle(shell.position.x, shell.position.y, 50, 50, BLACK);
+                        DrawRectangle(shell.position.x, shell.position.y, 100, 100, GOLD);
                     }
                 }
 
@@ -359,27 +364,21 @@ int FinishGameplayScreen(void)
 
 void Shoot()
 {
-    if (player.reloadTimer == 0)
+    if (player.reloadTimer == 0 && player.shotTimer == 0 && ammo.count > 0)
     {
-        variance = (Vector2){(float)GetRandomValue(-5, 5)/100, (float)GetRandomValue(-5, 5)/100};
-
         SetSoundPitch(fxShoot, 1);
         PlaySound(fxShoot);
         StartShootAnimation(player.position, player.rotation);
+        FireShot(player.position, player.rotation, player.fireRange);
         shellsFired++;
 
-        ammo.shells[ammo.shellIterator].rotation = player.rotation;
-        ammo.shells[ammo.shellIterator].position = player.position;
-        ammo.shells[ammo.shellIterator].active = true;
-        ammo.shells[ammo.shellIterator].range = player.fireRange - (float)GetRandomValue(-100, 100);
-        ammo.shells[ammo.shellIterator].velocity = RotationToVector(ammo.shells[ammo.shellIterator].rotation);
-        ammo.shells[ammo.shellIterator].velocity = Vector2Add(ammo.shells[ammo.shellIterator].velocity, variance);
+        player.shotTimer = SHOT_TIME;
 
-        ammo.shellIterator++;
-        if (ammo.shellIterator == ammo.capacity)
-            ammo.shellIterator = 0;
-
-        player.reloadTimer = RELOAD_TIME;
+        if (ShotsRemaining() == 0)
+        {
+            player.reloadTimer = RELOAD_TIME;
+            ReloadAmmo();
+        }
     }
 }
 
@@ -468,8 +467,12 @@ void DrawGui()
     GuiProgressBar((Rectangle){655, yOffset, 240, 15}, NULL, NULL, player.health, 0, 100);
     yOffset += 40;
 
-    // Reload bar
+    // Reload timer bar
     GuiProgressBar((Rectangle){655, yOffset, 240, 15}, NULL, NULL, RELOAD_TIME - player.reloadTimer, 0, RELOAD_TIME);
+    yOffset += 17;
+
+    // Shot timer bar
+    GuiProgressBar((Rectangle){655, yOffset, 240, 15}, NULL, NULL, SHOT_TIME - player.shotTimer, 0, SHOT_TIME);
     yOffset += 17;
 
     // Fire button

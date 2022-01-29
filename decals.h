@@ -7,8 +7,8 @@
 
 #include "raylib.h"
 
-#define MAX_IMPACT_DECALS 100
-#define MAX_CORPSE_DECALS 300
+#define MAX_IMPACT_DECALS 200
+#define MAX_CORPSE_DECALS 3000
 
 typedef enum DecalType { IMPACT = 0, CORPSE } DecalType;
 

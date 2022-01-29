@@ -20,6 +20,7 @@ typedef struct Player {
     Color color;
     float fireRange;
     float reloadTimer;
+    float shotTimer;
     float health;
     bool alive;
 } Player;
