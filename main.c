@@ -40,11 +40,12 @@ EndCondition endCondition = { 0 };
 int screenWidth = 900;
 int screenHeight = 675;
 float musicVolume = 0.1f;
-float masterVolume = 1.0f;
+float masterVolume = 0.5f;
 int score = 0;
 int enemiesKilled = 0;
 int friendliesKilled = 0;
 int shellsFired = 0;
+int bestShot = 0;
 bool ezAiming = 0;
 
 // Required variables to manage screen transitions (fade-in, fade-out)
@@ -97,7 +98,7 @@ int main()
     SetMusicVolume(music, musicVolume);
     PlayMusicStream(music);
 
-    currentScreen = LOGO;
+    currentScreen = ENDING;
 
     switch (currentScreen)
     {

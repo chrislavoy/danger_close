@@ -52,6 +52,7 @@ extern int score;
 extern int enemiesKilled;
 extern int friendliesKilled;
 extern int shellsFired;
+extern int bestShot;
 extern bool ezAiming;
 
 #ifdef __cplusplus

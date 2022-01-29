@@ -32,11 +32,12 @@
 //----------------------------------------------------------------------------------
 static int framesCounter = 0;
 static int finishScreen = 0;
-char* endMessage;
+const char* endMessage;
 const char* scoreMessage;
 const char* enemiesMessage;
 const char* friendliesMessage;
 const char* shellsFiredMessage;
+const char* bestShotMessage;
 
 //----------------------------------------------------------------------------------
 // Ending Screen Functions Definition
@@ -64,9 +65,10 @@ void InitEndingScreen(void)
     }
 
     scoreMessage = TextFormat("Score: %d", score);
-    enemiesMessage = TextFormat("Enemies You Killed: %d", enemiesKilled);
-    friendliesMessage = TextFormat("Friendlies You Killed: %d", friendliesKilled);
-    shellsFiredMessage = TextFormat("Shells You Fired: %d", shellsFired);
+    enemiesMessage = TextFormat("Enemies you killed: %d", enemiesKilled);
+    friendliesMessage = TextFormat("Friendlies you killed: %d", friendliesKilled);
+    shellsFiredMessage = TextFormat("Shells you fired: %d", shellsFired);
+    bestShotMessage = TextFormat("Most kills in one shot: %d", bestShot);
 }
 
 // Ending Screen Update logic
@@ -84,10 +86,11 @@ void DrawEndingScreen(void)
     int screenWidth = GetScreenWidth();
 
     DrawText(endMessage, screenWidth/2 - (TextLength(endMessage)*8), 100, 30, WHITE);
-    DrawText(scoreMessage, screenWidth/2 - 50, 200, 30, WHITE);
-    DrawText(enemiesMessage, screenWidth/2 - 235, 250, 30, WHITE);
-    DrawText(friendliesMessage, screenWidth/2 - 268, 300, 30, WHITE);
-    DrawText(shellsFiredMessage, screenWidth/2 - 211, 350, 30, WHITE);
+    DrawText(TextFormat("Score: %d", score), screenWidth/2 - 6, 200, 30, WHITE);
+    DrawText(TextFormat("Enemies you killed: %d", enemiesKilled), screenWidth/2 - 186, 250, 30, WHITE);
+    DrawText(TextFormat("Friendlies you killed: %d", friendliesKilled), screenWidth/2 - 219, 300, 30, WHITE);
+    DrawText(TextFormat("Shells you fired: %d", shellsFired), screenWidth/2 - 159, 350, 30, WHITE);
+    DrawText(TextFormat("Most kills in one shot: %d", bestShot), screenWidth/2 - 243, 400, 30, WHITE);
 
     if (GuiButton((Rectangle){screenWidth/2 - 50, 450, 100, 25}, "Retry"))
     {

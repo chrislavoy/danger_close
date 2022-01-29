@@ -410,6 +410,8 @@ void Explode(int shellIndex)
     friendliesKilled += friendliesHit;
 
     score += (enemiesHit * 100) - (friendliesHit * 200);
+
+    if (enemiesHit > bestShot) bestShot = enemiesHit;
 }
 
 void SetMessage(const char* message)

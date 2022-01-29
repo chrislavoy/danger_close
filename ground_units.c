@@ -46,6 +46,9 @@ void InitEnemies(int wave)
 	enemyUnits.capacity = MAX_ENEMIES;
     const int count_for_wave = wave * 200;
 
+    int randTarget = GetRandomValue(0, 2);
+    int randTarget2 = GetRandomValue(0, 2);
+
 	for (int i = 0; i < count_for_wave; ++i)
 	{
         Unit* unit = &enemyUnits.units[i];
@@ -70,6 +73,15 @@ void InitEnemies(int wave)
                     unit->moveTo = targetList[0];
                 else
                     unit->moveTo = targetList[2];
+                break;
+            case 3:
+                unit->moveTo = targetList[randTarget];
+                break;
+            case 4:
+                if (i%2 == 0)
+                    unit->moveTo = targetList[randTarget];
+                else
+                    unit->moveTo = targetList[randTarget2];
                 break;
             default:
                 unit->moveTo = targetList[target];
@@ -328,7 +340,7 @@ int EnemyUnitInRange(int team, Vector2 position, float range)
 
 void AttackPlayer()
 {
-    SetSoundVolume(fxUnitShoot, 0.1f);
+    SetSoundVolume(fxUnitShoot, 0.05f);
     PlaySoundMulti(fxUnitShoot);
 
     if((float)GetRandomValue(0, 100) / 100.0f > (1.0f - ENEMY_HIT_CHANCE))
