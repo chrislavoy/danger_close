@@ -93,7 +93,7 @@ int main()
     SetMusicVolume(music, musicVolume);
     PlayMusicStream(music);
 
-    currentScreen = GAMEPLAY;
+    currentScreen = LOGO;
 
     switch (currentScreen)
     {
