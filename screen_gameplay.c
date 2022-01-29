@@ -47,6 +47,7 @@ static int finishScreen = 0;
 const float TIME_BETWEEN_FEEDBACK = 5.0f;
 
 float feedbackTimer = 0;
+float feedbackReveal = 0;
 float soundVolume = 1.0f;
 
 Camera2D worldCamera;
@@ -194,6 +195,8 @@ void UpdateGameplayScreen(void)
             }
         }
 
+        if (showMessage) feedbackReveal += 100 * dt;
+
         if (EnemiesRemaining() == 0)
         {
             if (wave < 5)
@@ -203,6 +206,7 @@ void UpdateGameplayScreen(void)
                 ResetFriendlies();
                 const int count_for_wave = wave * 200;
                 feedbackTimer = 0;
+                feedbackReveal = 0;
                 SetMessage(TextFormat("Wave: %d\n%d Enemies incoming!", wave, count_for_wave));
             }
             else
@@ -219,16 +223,19 @@ void UpdateGameplayScreen(void)
                 EndGameResetUnits();
                 ResetDecals();
                 feedbackTimer = 0;
+                feedbackReveal = 0;
                 finishScreen = 1;
             }
         }
 
         if (!player.alive)
         {
+            SpawnImpactAnimation(player.position);
             EndGameResetUnits();
             endCondition = LOSE;
             finishScreen = 1;
             feedbackTimer = 0;
+            feedbackReveal = 0;
         }
     }
     else
@@ -424,7 +431,8 @@ void DrawMessage()
 		int endY = GetScreenHeight() - startY - 5;
         DrawRectangleRec    ((Rectangle){5, startY, 640, endY}, WHITE);
         DrawRectangleLinesEx((Rectangle){5, startY, 640, endY}, 3, BLACK);
-        DrawText(feedbackMessage, 15, startY + 15, 30, BLACK);
+//        DrawText(feedbackMessage, 15, startY + 15, 30, BLACK);
+        DrawText(TextSubtext(feedbackMessage, 0, feedbackReveal/10), 15, startY + 15, 30, BLACK);
     }
 }
 

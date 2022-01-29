@@ -100,7 +100,7 @@ void UpdateTitleScreen(void)
 // Title Screen Draw logic
 void DrawTitleScreen(void)
 {
-    ClearBackground(RAYWHITE);
+    ClearBackground(BLACK);
     // TODO: Draw TITLE screen here!
 //    DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), GREEN);
 //    DrawTextEx(font, "TITLE SCREEN", (Vector2){ 20, 10 }, font.baseSize*3, 4, DARKGREEN);
