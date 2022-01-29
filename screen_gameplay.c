@@ -102,7 +102,7 @@ void InitGameplayScreen(void)
     InitAnimations();
 
 	mainRenderTexture = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
-	SetTextureFilter(mainRenderTexture.texture, TEXTURE_FILTER_ANISOTROPIC_16X);
+//	SetTextureFilter(mainRenderTexture.texture, TEXTURE_FILTER_ANISOTROPIC_16X);
 
     worldCamera.target = player.position;
     worldCamera.offset = (Vector2){GetScreenWidth()/2 - guiWidth/2, GetScreenHeight()/2};
@@ -110,7 +110,7 @@ void InitGameplayScreen(void)
     worldCamera.zoom = 0.5f;
 
     sideRenderTexture = LoadRenderTexture(600, 600);
-    SetTextureFilter(sideRenderTexture.texture, TEXTURE_FILTER_ANISOTROPIC_16X);
+//    SetTextureFilter(sideRenderTexture.texture, TEXTURE_FILTER_ANISOTROPIC_16X);
 
     mapCamera.target = Vector2Zero();
     mapCamera.offset = (Vector2) {sideRenderTexture.texture.width/2, sideRenderTexture.texture.height/2};

@@ -150,8 +150,8 @@ void UpdateShootAnimation(float dt)
 
 void DrawAnimations()
 {
-    DrawImpactAnimations();
     DrawShootAnimation();
+    DrawImpactAnimations();
 }
 
 void DrawImpactAnimations(void)
@@ -166,8 +166,8 @@ void DrawImpactAnimations(void)
                 Element* element = &animation->elements[j];
                 element->origin = (Vector2)
                         {
-                            (64 + (animation->runtime/animation->maxRuntime * 10))/2,
-                            (64 + (animation->runtime/animation->maxRuntime * 10))/2,
+                            (element->origin.x + (animation->runtime/animation->maxRuntime)),
+                            (element->origin.y + (animation->runtime/animation->maxRuntime)),
                         };
                 DrawTexturePro(
                         smokeTexture,
