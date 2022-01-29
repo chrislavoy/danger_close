@@ -19,6 +19,7 @@ void UpdateEnemyUnits();
 // Also declared in screens.h, implemented in screen_gameplay.c
 void DrawSprite(int offsetX, int offsetY, Vector2 position, Vector2 origin, float rotation);
 void DrawSpriteColor(int offsetX, int offsetY, Vector2 position, Vector2 origin, float rotation, Color color);
+bool PointInsideRect(Vector2 point, Rectangle rect);
 
 Vector2 enemyTargetPos1a = (Vector2){-2250, -150};
 Vector2 enemyTargetPos1b = (Vector2){0, -150};
@@ -241,7 +242,7 @@ void DrawUnits()
     for (int i = 0; i < enemyUnits.capacity; ++i)
     {
         unit = &enemyUnits.units[i];
-        if (unit->active)
+        if (unit->active && PointInsideRect(unit->position, (Rectangle){-3200, -3200, 3200, 3200}))
         {
             DrawSprite(16, 10, unit->position, unit->origin, unit->rotation);
             DrawSpriteColor(16, 10, unit->position, unit->origin, unit->rotation, GRAY);
@@ -255,7 +256,7 @@ void DrawUnits()
 	for (int i = 0; i < friendlyUnits.capacity; ++i)
 	{
         unit = &friendlyUnits.units[i];
-		if (unit->active)
+		if (unit->active && PointInsideRect(unit->position, (Rectangle){-3200, -3200, 3200, 3200}))
 		{
 			DrawSprite(15, 10, unit->position, unit->origin, unit->rotation);
             if (unit->shotTimer >= SHOT_TIMER_MAX - 0.15f)

@@ -220,10 +220,6 @@ void UpdateGameplayScreen(void)
                     endCondition = WIN;
                 }
 
-                EndGameResetUnits();
-                ResetDecals();
-                feedbackTimer = 0;
-                feedbackReveal = 0;
                 finishScreen = 1;
             }
         }
@@ -231,11 +227,8 @@ void UpdateGameplayScreen(void)
         if (!player.alive)
         {
             SpawnImpactAnimation(player.position);
-            EndGameResetUnits();
             endCondition = LOSE;
             finishScreen = 1;
-            feedbackTimer = 0;
-            feedbackReveal = 0;
         }
     }
     else
@@ -359,6 +352,10 @@ void DrawGameplayScreen(void)
 void UnloadGameplayScreen(void)
 {
     // TODO: Unload GAMEPLAY screen variables here!
+    EndGameResetUnits();
+    ResetDecals();
+    feedbackTimer = 0;
+    feedbackReveal = 0;
     UnloadRenderTexture(mainRenderTexture);
     UnloadRenderTexture(sideRenderTexture);
 }
